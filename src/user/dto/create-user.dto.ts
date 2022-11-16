@@ -42,3 +42,5 @@ export class CreateUserDto {
   })
   isAdmin: boolean;
 }
+
+// DTO: Data Transfer Object
