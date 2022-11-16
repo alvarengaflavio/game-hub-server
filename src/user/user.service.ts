@@ -10,7 +10,7 @@ export class UserService {
     return this.users;
   }
 
-  create(user: CreateUserDto) {
+  create(user: CreateUserDto): User {
     const newUser = {
       id: Math.random().toString(36).substring(2, 9),
       ...user,
