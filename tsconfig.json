@@ -11,10 +11,10 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
-      "@": ["src"],
-      "@/*": ["src/*"],
-      "@test": ["test"],
-      "@test/*": ["test/*"]
+      "$": ["src"],
+      "$/*": ["src/*"],
+      "$test": ["test"],
+      "$test/*": ["test/*"]
     },
     "incremental": true,
     "skipLibCheck": true,
