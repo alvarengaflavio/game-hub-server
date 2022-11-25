@@ -1,3 +1,4 @@
+import { PrismaService } from '$/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
@@ -5,6 +6,7 @@ import { User } from './entities/user.entity';
 @Injectable()
 export class UserService {
   private readonly users: User[] = [];
+  constructor(private readonly prisma: PrismaService) {}
 
   findAll(): User[] {
     return this.users;
