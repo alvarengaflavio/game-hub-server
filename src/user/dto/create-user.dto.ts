@@ -29,7 +29,8 @@ export class CreateUserDto {
   @IsString()
   @MinLength(8)
   @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-    message: 'Your password must be strong',
+    message:
+      'Sua senha deve conter pelo menos uma letra maiúscula, uma minúscula e um número ou caractere especial',
   })
   @ApiProperty({
     description:
@@ -50,7 +51,7 @@ export class CreateUserDto {
     description: 'O CPF do usuário',
     example: '12345678901',
   })
-  CPF: string;
+  cpf: string;
 
   @IsBoolean()
   @ApiProperty({

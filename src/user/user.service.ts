@@ -8,17 +8,19 @@ export class UserService {
   private readonly users: User[] = [];
   constructor(private readonly prisma: PrismaService) {}
 
-  findAll(): User[] {
-    return this.users;
+  findAll(): Promise<User[]> {
+    return this.prisma.user.findMany();
   }
 
-  create(user: CreateUserDto): User {
-    const newUser = {
-      id: Math.random().toString(36).substring(2, 9),
-      ...user,
+  create(dto: CreateUserDto): Promise<User> {
+    const data: CreateUserDto = {
+      ...dto,
     };
 
-    this.users.push(newUser);
-    return newUser;
+    return this.prisma.user.create({ data });
+  }
+
+  findOne(id: string): Promise<User> {
+    return this.prisma.user.findUnique({ where: { id } });
   }
 }
