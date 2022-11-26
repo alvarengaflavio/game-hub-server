@@ -4,6 +4,19 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 
+export interface UserSelect {
+  id?: boolean;
+  name?: boolean;
+  email?: boolean;
+}
+
+export interface UserDetailed extends UserSelect {
+  cpf: boolean;
+  isAdmin: boolean;
+  createdAt: boolean;
+  updatedAt: boolean;
+}
+
 @Injectable()
 export class UserService {
   private readonly userSelect = {
@@ -34,19 +47,13 @@ export class UserService {
     return this.prisma.user.create({ data, select: this.userDetailedSelect });
   }
 
-  findOne(id: string): Promise<User> {
-    return this.prisma.user.findUnique({
-      where: { id },
-      select: this.userDetailedSelect,
-    });
+  async findOne(id: string): Promise<UserSelect | UserDetailed> {
+    const user = await this.findByID(id, this.userDetailedSelect);
+    return user;
   }
 
-  update(id: string, dto: UpdateUserDto) {
-    const user = this.findOne(id);
-
-    if (!user) {
-      throw new NotFoundException('Usuário não encontrado');
-    }
+  async update(id: string, dto: UpdateUserDto) {
+    await this.findByID(id, this.userDetailedSelect);
 
     const data: UpdateUserDto = {
       ...dto,
@@ -57,5 +64,31 @@ export class UserService {
       data,
       select: this.userDetailedSelect,
     });
+  }
+
+  async remove(id: string) {
+    await this.findByID(id, this.userSelect);
+
+    return this.prisma.user.delete({ where: { id }, select: this.userSelect });
+  }
+
+  // ------------------------------------------------------------------------------------------------
+  //                                   Métodos adicionais
+  // ------------------------------------------------------------------------------------------------
+
+  async findByID(
+    id: string,
+    selection: UserSelect | UserDetailed,
+  ): Promise<UserSelect | UserDetailed> {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: selection,
+    });
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    return user;
   }
 }
