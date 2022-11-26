@@ -9,10 +9,13 @@ async function bootstrap() {
   // Validation
   app.useGlobalPipes(new ValidationPipe());
 
+  // Enable CORS
+  app.enableCors();
+
   // Swagger
   const config = new DocumentBuilder()
-    .setTitle('Xbox-Live')
-    .setDescription('The Xbox-Live API Clone')
+    .setTitle('Game-Hub')
+    .setDescription('API para um sistema de Game Hub')
     .setVersion('1.0.0')
     .addTag('status')
     .addTag('user')

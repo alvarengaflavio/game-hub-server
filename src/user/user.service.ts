@@ -1,5 +1,5 @@
 import { PrismaService } from '$/prisma/prisma.service';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -53,7 +53,8 @@ export class UserService {
   }
 
   async update(id: string, dto: UpdateUserDto) {
-    await this.findByID(id, this.userDetailedSelect);
+    const user = await this.findByID(id, this.userDetailedSelect);
+    if (!user) return null;
 
     const data: UpdateUserDto = {
       ...dto,
@@ -66,10 +67,12 @@ export class UserService {
     });
   }
 
-  async remove(id: string) {
-    await this.findByID(id, this.userSelect);
+  async remove(id: string): Promise<void> {
+    const deletedUser = await this.findByID(id, this.userSelect);
 
-    return this.prisma.user.delete({ where: { id }, select: this.userSelect });
+    if (!deletedUser) return null;
+
+    await this.prisma.user.delete({ where: { id }, select: this.userSelect });
   }
 
   // ------------------------------------------------------------------------------------------------
@@ -84,10 +87,6 @@ export class UserService {
       where: { id },
       select: selection,
     });
-
-    if (!user) {
-      throw new NotFoundException('Usuário não encontrado');
-    }
 
     return user;
   }
