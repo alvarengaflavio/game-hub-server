@@ -88,6 +88,12 @@ export class UserService {
       select: selection,
     });
 
+    if (!user)
+      throw {
+        name: 'NotFoundError',
+        message: `Usuário com ID '${id}' não encontrado`,
+      };
+
     return user;
   }
 }
