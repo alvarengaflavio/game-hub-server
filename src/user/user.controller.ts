@@ -1,4 +1,4 @@
-import { handleError } from '$/utils/error-handler.util';
+import { buildPrismaError, handleError } from '$/utils/error-handler.util';
 import {
   Body,
   Controller,
@@ -62,11 +62,7 @@ export class UserController {
 
       return newUser;
     } catch (err) {
-      if (err.code === 'P2002')
-        handleError({
-          name: 'BadRequestError',
-          message: 'Email já cadastrado',
-        });
+      if (err.code === 'P2002') buildPrismaError(err, 'Email já cadastrado');
 
       handleError({
         name: err.name,
@@ -118,10 +114,11 @@ export class UserController {
 
       return updatedUser;
     } catch (err) {
-      if (err instanceof PrismaClientValidationError) {
-        err.name = 'BadRequestError';
-        err.message = 'Erro de validação. Verifique os dados enviados.';
-      }
+      if (err instanceof PrismaClientValidationError)
+        buildPrismaError(
+          err,
+          'Erro de validação. Verifique os dados enviados.',
+        );
 
       handleError({
         name: err.name,
