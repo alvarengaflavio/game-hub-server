@@ -7,6 +7,7 @@ import {
   UnauthorizedException,
   UnprocessableEntityException,
 } from '@nestjs/common';
+import { PrismaClientValidationError } from '@prisma/client/runtime';
 
 export function handleError(err: { name: string; message: string }): void {
   if (err.message.includes('\n')) {
@@ -53,5 +54,19 @@ export function handleError(err: { name: string; message: string }): void {
 
     default:
       throw new InternalServerErrorException(err.message);
+  }
+}
+
+export function buildPrismaError(err: any, message: string): void {
+  if ('code' in err) {
+    if (err.code === 'P2002') {
+      err.name = 'BadRequestError';
+      err.message = message;
+    }
+  }
+
+  if (err instanceof PrismaClientValidationError) {
+    err.name = 'BadRequestError';
+    err.message = message;
   }
 }
