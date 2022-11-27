@@ -53,8 +53,7 @@ export class UserService {
   }
 
   async update(id: string, dto: UpdateUserDto) {
-    const user = await this.findByID(id, this.userDetailedSelect);
-    if (!user) return null;
+    await this.findByID(id, this.userDetailedSelect);
 
     const data: UpdateUserDto = {
       ...dto,
@@ -68,10 +67,7 @@ export class UserService {
   }
 
   async remove(id: string): Promise<void> {
-    const deletedUser = await this.findByID(id, this.userSelect);
-
-    if (!deletedUser) return null;
-
+    await this.findByID(id, this.userSelect);
     await this.prisma.user.delete({ where: { id }, select: this.userSelect });
   }
 
