@@ -1,3 +1,4 @@
+import { handleError } from '$/utils/error-handler.util';
 import {
   Body,
   Controller,
@@ -8,12 +9,10 @@ import {
   Post,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { PrismaClientValidationError } from '@prisma/client/runtime';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { handleError } from '$/utils/error-handler.util';
 import { UserService } from './user.service';
-import { User } from './entities/user.entity';
-import { PrismaClientValidationError } from '@prisma/client/runtime';
 
 @ApiTags('user')
 @Controller('user')
