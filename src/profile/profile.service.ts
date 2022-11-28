@@ -22,8 +22,20 @@ export class ProfileService {
     return this.prisma.profile.create({ data });
   }
 
-  findAll() {
-    return `This action returns all profile`;
+  async findAll() {
+    return this.prisma.profile.findMany({
+      select: {
+        id: true,
+        title: true,
+        avatarUrl: true,
+        user: {
+          select: {
+            id: true,
+            email: true,
+          },
+        },
+      },
+    });
   }
 
   findOne(id: string) {

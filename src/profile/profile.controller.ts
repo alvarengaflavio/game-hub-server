@@ -34,8 +34,16 @@ export class ProfileController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Listar todos os perfis' })
   findAll() {
-    return this.profileService.findAll();
+    try {
+      return this.profileService.findAll();
+    } catch (err) {
+      handleError({
+        name: 'InternalServerError',
+        message: err.message,
+      });
+    }
   }
 
   @Get(':id')
