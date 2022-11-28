@@ -62,8 +62,7 @@ export class UserController {
 
       return newUser;
     } catch (err) {
-      buildPrismaError(err, 'Dados inválidos. Verifique os dados enviados.');
-
+      buildPrismaError(err, 'Verifique os dados enviados.');
       handleError({
         name: err.name,
         message: err.message,
@@ -114,11 +113,9 @@ export class UserController {
 
       return updatedUser;
     } catch (err) {
+      console.error(err);
       if (err instanceof PrismaClientValidationError)
-        buildPrismaError(
-          err,
-          'Erro de validação. Verifique os dados enviados.',
-        );
+        buildPrismaError(err, 'Verifique os dados enviados.');
 
       handleError({
         name: err.name,

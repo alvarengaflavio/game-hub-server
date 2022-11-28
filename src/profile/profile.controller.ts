@@ -25,7 +25,7 @@ export class ProfileController {
       const newProfile = await this.profileService.create(dto);
       return newProfile;
     } catch (err) {
-      buildPrismaError(err, 'Email já cadastrado');
+      buildPrismaError(err, 'Verifique os dados enviados.');
       handleError({
         name: err.name,
         message: err.message,
