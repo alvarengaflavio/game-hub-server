@@ -62,7 +62,7 @@ export class UserController {
 
       return newUser;
     } catch (err) {
-      if (err.code === 'P2002') buildPrismaError(err, 'Email já cadastrado');
+      buildPrismaError(err, 'Dados inválidos. Verifique os dados enviados.');
 
       handleError({
         name: err.name,
