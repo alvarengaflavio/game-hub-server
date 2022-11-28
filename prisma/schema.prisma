@@ -29,7 +29,7 @@ model Profile {
   id        String    @id @default(uuid())
   title     String
   avatarUrl String    @default("https://media.discordapp.net/attachments/780200279772626944/1046743073209724928/iYsYcLMR_400x400.jpg") @map("avatar_url")
-  user      User      @relation(fields: [userId], references: [id])
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String    @map("user_id")
 
   createdAt DateTime  @default(now()) @map("created_at")
