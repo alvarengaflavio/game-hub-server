@@ -19,7 +19,7 @@ async function bootstrap() {
     .setVersion('1.0.0')
     .addTag('status')
     .addTag('user')
-    // .addTag('profile')
+    .addTag('profile')
     // .addTag('game')
     // .addTag('genres')
     .build();
