@@ -11,15 +11,29 @@ datasource db {
 }
 
 model User {
-  id       String  @id @default(uuid())
-  name     String
-  email    String  @unique
-  password String
-  cpf      String  @unique
-  isAdmin  Boolean @default(false) @map("is_admin")
+  id        String    @id @default(uuid())
+  name      String
+  email     String    @unique
+  password  String
+  cpf       String    @unique
+  isAdmin   Boolean   @default(false) @map("is_admin")
+  profiles  Profile[]
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
 
   @@map("user")
+}
+
+model Profile {
+  id        String    @id @default(uuid())
+  title     String
+  avatarUrl String    @default("https://media.discordapp.net/attachments/780200279772626944/1046743073209724928/iYsYcLMR_400x400.jpg") @map("avatar_url")
+  user      User      @relation(fields: [userId], references: [id])
+  userId    String    @map("user_id")
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@map("profile")
 }
