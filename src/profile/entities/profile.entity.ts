@@ -1,8 +1,8 @@
 export class Profile {
   id: string;
   title: string;
-  avatarUrl: string;
+  avatarUrl?: string;
   userId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
