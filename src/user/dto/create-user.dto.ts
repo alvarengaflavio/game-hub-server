@@ -40,6 +40,14 @@ export class CreateUserDto {
   password: string;
 
   @IsString()
+  @MinLength(8)
+  @ApiProperty({
+    description: 'Confirmação da senha do usuário. Deve ser igual a senha.',
+    example: 'Abcd*1234',
+  })
+  confirmPassword: string;
+
+  @IsString()
   @MaxLength(11)
   @Matches(
     /^([0-9]{2}[\.]?[0-9]{3}[\.]?[0-9]{3}[\/]?[0-9]{4}[-]?[0-9]{2})|([0-9]{3}[\.]?[0-9]{3}[\.]?[0-9]{3}[-]?[0-9]{2})*$/,
