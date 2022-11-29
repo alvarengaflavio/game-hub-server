@@ -18,10 +18,12 @@ async function bootstrap() {
     .setDescription('API para um sistema de Game Hub')
     .setVersion('1.0.0')
     .addTag('status')
+    .addTag('auth')
     .addTag('user')
     .addTag('profile')
     // .addTag('game')
     // .addTag('genres')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
