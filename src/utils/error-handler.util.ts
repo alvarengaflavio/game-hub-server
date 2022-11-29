@@ -58,12 +58,8 @@ export function handleError(err: { name: string; message: string }): void {
 }
 
 export function buildPrismaError(err: any, message: string): void {
-  err.message = message;
-
   if ('code' in err) {
     if (err.code === 'P2002') {
-      // err.name = 'BadRequestError';
-
       if (err.meta?.target?.includes('email')) {
         err.name = 'ConflictError';
         err.message = 'Email já cadastrado';
@@ -78,5 +74,6 @@ export function buildPrismaError(err: any, message: string): void {
 
   if (err instanceof PrismaClientValidationError) {
     err.name = 'BadRequestError';
+    err.message = message;
   }
 }
