@@ -1,6 +1,15 @@
 import { handleError } from '$/utils/error-handler.util';
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginResponseDto } from './dto/login-responde.dto';
 import { LoginDto } from './dto/login.dto';
@@ -25,6 +34,24 @@ export class AuthController {
 
       return user;
     } catch (err) {
+      handleError({
+        name: err.name,
+        message: err.message,
+      });
+    }
+  }
+
+  @Get()
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Retorna usuário atenticado na sessão.',
+  })
+  profile() {
+    try {
+      return { message: 'Atenticação realizada com sucesso!' };
+    } catch (err) {
+      // video aula 16 - autenticação - validação JWT 6:31
       handleError({
         name: err.name,
         message: err.message,

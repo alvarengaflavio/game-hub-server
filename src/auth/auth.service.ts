@@ -7,7 +7,10 @@ import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prisma: PrismaService, private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   async login(loginDto: LoginDto): Promise<LoginResponseDto> {
     const { email, password } = loginDto;
@@ -25,7 +28,7 @@ export class AuthService {
     delete user.password;
 
     return {
-      token: this.jwtService.sign({ id: user.id }),
+      token: this.jwtService.sign({ email: user.email }),
       user,
     };
   }
