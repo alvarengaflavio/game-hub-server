@@ -113,10 +113,7 @@ export class UserController {
 
       return updatedUser;
     } catch (err) {
-      console.error(err);
-      if (err instanceof PrismaClientValidationError)
-        buildPrismaError(err, 'Verifique os dados enviados.');
-
+      buildPrismaError(err, 'Verifique os dados enviados.');
       handleError({
         name: err.name,
         message: err.message,
