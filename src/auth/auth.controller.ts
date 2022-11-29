@@ -51,7 +51,6 @@ export class AuthController {
     try {
       return { message: 'Atenticação realizada com sucesso!' };
     } catch (err) {
-      // video aula 16 - autenticação - validação JWT 6:31
       handleError({
         name: err.name,
         message: err.message,
