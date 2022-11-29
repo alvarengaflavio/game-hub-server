@@ -43,7 +43,7 @@ export function handleError(err: { name: string; message: string }): void {
     case 'TokenExpiredError':
       throw new UnauthorizedException(err.message);
 
-    case 'UnauthorizedErrorError':
+    case 'UnauthorizedError':
       throw new UnauthorizedException(err.message);
 
     case 'UnprocessableEntityError':
