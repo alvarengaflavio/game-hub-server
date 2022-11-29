@@ -1,13 +1,31 @@
+import { PrismaService } from '$/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { LoginResponseDto } from './dto/login-responde.dto';
 import { LoginDto } from './dto/login.dto';
+import { compare } from 'bcrypt';
 
 @Injectable()
 export class AuthService {
+  constructor(private readonly prisma: PrismaService) {}
+
   async login(loginDto: LoginDto): Promise<LoginResponseDto> {
+    const { email, password } = loginDto;
+
+    // Procura e checa se o usuário existe, usando email
+    const user = await this.prisma.user.findUnique({ where: { email } });
+
+    if (!user) return null;
+
+    // Checa se a senha enviada é igual a senha do usuário
+    const isPasswordValid = await compare(password, user.password);
+
+    if (!isPasswordValid) return null;
+
+    delete user.password;
+
     return {
-      token: 'token teste',
-      user: undefined,
+      token: 'Token de teste',
+      user,
     };
   }
 }
