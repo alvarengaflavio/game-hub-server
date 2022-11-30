@@ -138,7 +138,7 @@ export class UserController {
   @Delete(':id')
   @UseGuards(AuthGuard())
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Deleta um usuário pelo ID' })
+  @ApiOperation({ summary: 'Excluir um usuário pelo ID' })
   @ApiResponse({
     status: 204,
     description: 'Usuário excluído com sucesso',
