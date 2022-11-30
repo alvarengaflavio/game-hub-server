@@ -4,6 +4,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -138,21 +140,17 @@ export class UserController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Deleta um usuário pelo ID' })
   @ApiResponse({
-    status: 200,
-    description: 'Usuário deletado com sucesso',
+    status: 204,
+    description: 'Usuário excluído com sucesso',
   })
   @ApiResponse({
     status: 404,
     description: 'Usuário não encontrado',
   })
+  @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id') id: string) {
     try {
       await this.userService.remove(id);
-
-      return {
-        statusCode: 200,
-        message: 'Usuário deletado com sucesso',
-      };
     } catch (err) {
       handleError({
         name: err.name,

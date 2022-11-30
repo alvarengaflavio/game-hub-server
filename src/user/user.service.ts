@@ -100,7 +100,7 @@ export class UserService {
 
   async remove(id: string): Promise<void> {
     await this.findByID(id, this.userSelect);
-    await this.prisma.user.delete({ where: { id }, select: this.userSelect });
+    await this.prisma.user.delete({ where: { id } });
   }
 
   // ------------------------------------------------------------------------------------------------

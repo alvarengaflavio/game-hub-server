@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { Profile } from './entities/profile.entity';
 
 @Injectable()
 export class ProfileService {
@@ -46,7 +47,26 @@ export class ProfileService {
     return `This action updates a #${id} profile`;
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} profile`;
+  async remove(id: string) {
+    await this.findByID(id);
+    await this.prisma.profile.delete({ where: { id } });
+  }
+
+  // ------------------------------------------------------------------------------------------------
+  //                                   Métodos adicionais
+  // ------------------------------------------------------------------------------------------------
+
+  async findByID(id: string): Promise<Profile> {
+    const profile = await this.prisma.profile.findUnique({
+      where: { id },
+    });
+
+    if (!profile)
+      throw {
+        name: 'NotFoundError',
+        message: `Perfil com ID '${id}' não encontrado`,
+      };
+
+    return profile;
   }
 }
