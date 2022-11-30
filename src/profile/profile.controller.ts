@@ -14,6 +14,8 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { buildPrismaError, handleError } from '$/utils/error-handler.util';
 import { AuthGuard } from '@nestjs/passport';
+import { LoggedUser } from '$/auth/logged-user.decorator';
+import { User } from '$/user/entities/user.entity';
 
 @ApiTags('profile')
 @UseGuards(AuthGuard())
@@ -24,9 +26,9 @@ export class ProfileController {
 
   @Post()
   @ApiOperation({ summary: 'Criar um novo perfil' })
-  async create(@Body() dto: CreateProfileDto) {
+  async create(@LoggedUser() user: User, @Body() dto: CreateProfileDto) {
     try {
-      const newProfile = await this.profileService.create(dto);
+      const newProfile = await this.profileService.create(user.id, dto);
       return newProfile;
     } catch (err) {
       console.log(err);

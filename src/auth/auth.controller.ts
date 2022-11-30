@@ -1,3 +1,4 @@
+import { User } from '$/user/entities/user.entity';
 import { handleError } from '$/utils/error-handler.util';
 import {
   Body,
@@ -13,6 +14,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginResponseDto } from './dto/login-responde.dto';
 import { LoginDto } from './dto/login.dto';
+import { LoggedUser } from './logged-user.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -45,11 +47,11 @@ export class AuthController {
   @UseGuards(AuthGuard())
   @ApiBearerAuth()
   @ApiOperation({
-    summary: 'Retorna se usuário está atenticado na sessão.',
+    summary: 'Retorna usuário atenticado na sessão.',
   })
-  profile() {
+  profile(@LoggedUser() user: User) {
     try {
-      return { message: 'Atenticação realizada com sucesso!' };
+      return user;
     } catch (err) {
       handleError({
         name: err.name,
