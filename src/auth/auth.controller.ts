@@ -45,7 +45,7 @@ export class AuthController {
   @UseGuards(AuthGuard())
   @ApiBearerAuth()
   @ApiOperation({
-    summary: 'Retorna usuário atenticado na sessão.',
+    summary: 'Retorna se usuário está atenticado na sessão.',
   })
   profile() {
     try {
