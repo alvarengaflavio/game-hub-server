@@ -62,6 +62,7 @@ export class ProfileController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Buscar um perfil pelo ID' })
   async findOne(@Param('id') id: string) {
     try {
       const profile = await this.profileService.findOne(id);
@@ -75,12 +76,36 @@ export class ProfileController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProfileDto: UpdateProfileDto) {
-    return this.profileService.update(id, updateProfileDto);
+  @ApiOperation({ summary: 'Atualiza um perfil pelo ID' })
+  async update(
+    @Param('id') id: string,
+    @Body() updateProfileDto: UpdateProfileDto,
+    @LoggedUser() user: User,
+  ) {
+    try {
+      const updatedProfile = await this.profileService.update(
+        id,
+        updateProfileDto,
+        user,
+      );
+
+      if (!updatedProfile)
+        throw {
+          name: 'UnauthorizedError',
+          message: 'Você não tem permissão para atualizar este perfil.',
+        };
+
+      return updatedProfile;
+    } catch (err) {
+      handleError({
+        name: err.name,
+        message: err.message,
+      });
+    }
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Deleta um perfil pelo ID' })
+  @ApiOperation({ summary: 'Excluir um perfil pelo ID' })
   @ApiResponse({
     status: 204,
     description: 'Perfil excluído com sucesso',

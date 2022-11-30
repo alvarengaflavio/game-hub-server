@@ -1,4 +1,5 @@
 import { PrismaService } from '$/prisma/prisma.service';
+import { User } from '$/user/entities/user.entity';
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { CreateProfileDto } from './dto/create-profile.dto';
@@ -20,11 +21,16 @@ export class ProfileService {
         email: true,
       },
     },
+    createdAt: false,
+    updatedAt: false,
   };
 
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(userId: string, dto: CreateProfileDto) {
+  async create(
+    userId: string,
+    dto: CreateProfileDto,
+  ): Promise<ResponseProfileDto> {
     const data: Prisma.ProfileCreateInput = {
       title: dto.title,
       avatarUrl: dto.avatarUrl,
@@ -35,7 +41,14 @@ export class ProfileService {
       },
     };
 
-    return this.prisma.profile.create({ data });
+    return this.prisma.profile.create({
+      data,
+      select: {
+        ...this.selectedProfile,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
   }
 
   async findAll(): Promise<ResponseProfileDto[]> {
@@ -45,12 +58,31 @@ export class ProfileService {
   }
 
   async findOne(id: string): Promise<Profile | ResponseProfileDto> {
-    const data = await this.findByID(id, this.selectedProfile);
+    const data = await this.findByID(id, {
+      ...this.selectedProfile,
+      createdAt: true,
+      updatedAt: true,
+    });
     return data;
   }
 
-  update(id: string, updateProfileDto: UpdateProfileDto) {
-    return `This action updates a #${id} profile`;
+  async update(
+    id: string,
+    dto: UpdateProfileDto,
+    user: User,
+  ): Promise<ResponseProfileDto> {
+    const profile = await this.getOwner(id);
+
+    if (!user.isAdmin && profile.user.id !== user.id) return null;
+    // confirmar se o usuário é o dono do perfil ou se é admin
+
+    const data = { ...dto };
+
+    return this.prisma.profile.update({
+      where: { id },
+      data,
+      select: this.selectedProfile,
+    });
   }
 
   async remove(id: string): Promise<void> {
@@ -83,8 +115,26 @@ export class ProfileService {
 
     return profile;
   }
-}
 
-// ------------------------------------------------------------------------------------------------
-//                                   Tipos adicionais
-// ------------------------------------------------------------------------------------------------
+  async getOwner(id: string): Promise<{ id: string; user: { id: string } }> {
+    const profile = await this.prisma.profile.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        user: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    if (!profile)
+      throw {
+        name: 'NotFoundError',
+        message: `Perfil com ID '${id}' não encontrado`,
+      };
+
+    return profile;
+  }
+}
