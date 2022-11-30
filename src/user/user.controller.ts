@@ -7,9 +7,15 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { PrismaClientValidationError } from '@prisma/client/runtime';
+import { AuthGuard } from '@nestjs/passport';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
@@ -18,29 +24,6 @@ import { UserService } from './user.service';
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-
-  @Get()
-  @ApiOperation({
-    summary: 'Listar todos os usuário',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Lista contendo todos os usuários',
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Erro interno do servidor',
-  })
-  findAll() {
-    try {
-      return this.userService.findAll();
-    } catch (err) {
-      handleError({
-        name: 'InternalServerError',
-        message: err.message,
-      });
-    }
-  }
 
   @Post()
   @ApiOperation({ summary: 'Criar um novo usuário' })
@@ -70,7 +53,34 @@ export class UserController {
     }
   }
 
+  @Get()
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Listar todos os usuário',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista contendo todos os usuários',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Erro interno do servidor',
+  })
+  findAll() {
+    try {
+      return this.userService.findAll();
+    } catch (err) {
+      handleError({
+        name: 'InternalServerError',
+        message: err.message,
+      });
+    }
+  }
+
   @Get(':id')
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Lista um usuário pelo ID' })
   @ApiResponse({
     status: 200,
@@ -94,6 +104,8 @@ export class UserController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Atualiza um usuário pelo ID' })
   @ApiResponse({
     status: 200,
@@ -122,6 +134,8 @@ export class UserController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Deleta um usuário pelo ID' })
   @ApiResponse({
     status: 200,

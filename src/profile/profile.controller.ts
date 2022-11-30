@@ -6,14 +6,18 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { buildPrismaError, handleError } from '$/utils/error-handler.util';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('profile')
+@UseGuards(AuthGuard())
+@ApiBearerAuth()
 @Controller('profile')
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
@@ -25,6 +29,8 @@ export class ProfileController {
       const newProfile = await this.profileService.create(dto);
       return newProfile;
     } catch (err) {
+      console.log(err);
+
       buildPrismaError(err, 'Verifique os dados enviados.');
       handleError({
         name: err.name,
