@@ -4,35 +4,42 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
-
-export interface UserSelect {
-  id?: boolean;
-  name?: boolean;
-  email?: boolean;
-}
-
-export interface UserDetailed extends UserSelect {
-  cpf: boolean;
-  password?: boolean;
-  profiles: boolean;
-  isAdmin: boolean;
-  createdAt: boolean;
-  updatedAt: boolean;
-}
+import { SelectUser } from './interfaces/select-user.interface';
+import { ResponseUser } from './interfaces/response-user.interface';
 
 @Injectable()
 export class UserService {
+  private readonly allUsersSelect = {
+    id: true,
+    name: true,
+    email: true,
+    cpf: false,
+    password: false,
+    _count: {
+      select: {
+        profiles: true,
+      },
+    },
+    isAdmin: false,
+    createdAt: false,
+    updatedAt: false,
+  };
+
   private readonly userSelect = {
     id: true,
     name: true,
     email: true,
-  };
-
-  private readonly userDetailedSelect = {
-    ...this.userSelect,
     cpf: true,
-    profiles: true,
     password: false,
+    profiles: {
+      select: {
+        id: true,
+        title: true,
+        avatarUrl: true,
+        createdAt: false,
+        updatedAt: false,
+      },
+    },
     isAdmin: true,
     createdAt: true,
     updatedAt: true,
@@ -41,10 +48,10 @@ export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
   findAll(): Promise<{ id: string; name: string; email: string }[]> {
-    return this.prisma.user.findMany({ select: this.userSelect });
+    return this.prisma.user.findMany({ select: this.allUsersSelect });
   }
 
-  async create(dto: CreateUserDto): Promise<User> {
+  async create(dto: CreateUserDto): Promise<ResponseUser> {
     if (dto.confirmPassword !== dto.password)
       throw {
         name: 'ValidationError',
@@ -60,17 +67,17 @@ export class UserService {
 
     return this.prisma.user.create({
       data,
-      select: this.userDetailedSelect,
+      select: this.userSelect,
     });
   }
 
-  async findOne(id: string): Promise<UserSelect | UserDetailed> {
-    const user = await this.findByID(id, this.userDetailedSelect);
+  async findOne(id: string): Promise<ResponseUser> {
+    const user = await this.findByID(id, this.userSelect);
     return user;
   }
 
   async update(id: string, dto: UpdateUserDto) {
-    await this.findByID(id, this.userDetailedSelect);
+    await this.findByID(id, this.userSelect);
 
     if (dto.password) {
       if (dto.confirmPassword !== dto.password) {
@@ -94,7 +101,7 @@ export class UserService {
     return this.prisma.user.update({
       where: { id },
       data,
-      select: this.userDetailedSelect,
+      select: this.userSelect,
     });
   }
 
@@ -107,10 +114,7 @@ export class UserService {
   //                                   Métodos adicionais
   // ------------------------------------------------------------------------------------------------
 
-  async findByID(
-    id: string,
-    selection: UserSelect | UserDetailed,
-  ): Promise<UserSelect | UserDetailed> {
+  async findByID(id: string, selection: SelectUser): Promise<ResponseUser> {
     const user = await this.prisma.user.findUnique({
       where: { id },
       select: selection,
