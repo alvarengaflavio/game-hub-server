@@ -19,10 +19,11 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { buildPrismaError, handleError } from '$/utils/error-handler.util';
+import { handleError } from '$/common/helpers/exeption.helper';
 import { AuthGuard } from '@nestjs/passport';
-import { LoggedUser } from '$/auth/logged-user.decorator';
+import { LoggedUser } from '$/common/decorators/logged-user.decorator';
 import { User } from '$/user/entities/user.entity';
+import { prismaExeptionFilter } from '$/common/helpers/prisma-exeption.filter';
 
 @ApiTags('profile')
 @UseGuards(AuthGuard())
@@ -38,9 +39,7 @@ export class ProfileController {
       const newProfile = await this.profileService.create(user.id, dto);
       return newProfile;
     } catch (err) {
-      console.log(err);
-
-      buildPrismaError(err, 'Verifique os dados enviados.');
+      prismaExeptionFilter(err, 'Verifique os dados enviados.');
       handleError({
         name: err.name,
         message: err.message,

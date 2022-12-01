@@ -1,4 +1,5 @@
-import { buildPrismaError, handleError } from '$/utils/error-handler.util';
+import { handleError } from '$/common/helpers/exeption.helper';
+import { prismaExeptionFilter } from '$/common/helpers/prisma-exeption.filter';
 import {
   Body,
   Controller,
@@ -47,7 +48,7 @@ export class UserController {
 
       return newUser;
     } catch (err) {
-      buildPrismaError(err, 'Verifique os dados enviados.');
+      prismaExeptionFilter(err, 'Verifique os dados enviados.');
       handleError({
         name: err.name,
         message: err.message,
@@ -127,7 +128,7 @@ export class UserController {
 
       return updatedUser;
     } catch (err) {
-      buildPrismaError(err, 'Verifique os dados enviados.');
+      prismaExeptionFilter(err, 'Verifique os dados enviados.');
       handleError({
         name: err.name,
         message: err.message,

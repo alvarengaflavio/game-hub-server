@@ -3,14 +3,14 @@ import { User } from '$/user/entities/user.entity';
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { CreateProfileDto } from './dto/create-profile.dto';
-import { ResponseProfileDto } from './dto/response-profile.dto';
-import { SelectProfileDto } from './dto/select-profile.dto';
+import { ResponseProfile } from './interfaces/response-profile.interface';
+import { SelectProfile } from './interfaces/select-profile.interface';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { Profile } from './entities/profile.entity';
 
 @Injectable()
 export class ProfileService {
-  private readonly selectedProfile: SelectProfileDto = {
+  private readonly selectedProfile: SelectProfile = {
     id: true,
     title: true,
     avatarUrl: true,
@@ -30,7 +30,7 @@ export class ProfileService {
   async create(
     userId: string,
     dto: CreateProfileDto,
-  ): Promise<ResponseProfileDto> {
+  ): Promise<ResponseProfile> {
     const data: Prisma.ProfileCreateInput = {
       title: dto.title,
       avatarUrl: dto.avatarUrl,
@@ -51,13 +51,13 @@ export class ProfileService {
     });
   }
 
-  async findAll(): Promise<ResponseProfileDto[]> {
+  async findAll(): Promise<ResponseProfile[]> {
     return this.prisma.profile.findMany({
       select: this.selectedProfile,
     });
   }
 
-  async findOne(id: string): Promise<Profile | ResponseProfileDto> {
+  async findOne(id: string): Promise<Profile | ResponseProfile> {
     const data = await this.findByID(id, {
       ...this.selectedProfile,
       createdAt: true,
@@ -70,7 +70,7 @@ export class ProfileService {
     id: string,
     dto: UpdateProfileDto,
     user: User,
-  ): Promise<ResponseProfileDto> {
+  ): Promise<ResponseProfile> {
     const profile = await this.getOwner(id);
 
     if (!user.isAdmin && profile.user.id !== user.id) return null;
@@ -96,8 +96,8 @@ export class ProfileService {
 
   async findByID(
     id: string,
-    select: SelectProfileDto = null,
-  ): Promise<Profile | ResponseProfileDto> {
+    select: SelectProfile = null,
+  ): Promise<Profile | ResponseProfile> {
     const profile = select
       ? await this.prisma.profile.findUnique({
           where: { id },

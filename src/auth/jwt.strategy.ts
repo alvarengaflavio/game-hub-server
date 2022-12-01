@@ -1,6 +1,6 @@
 import { PrismaService } from '$/prisma/prisma.service';
 import { User } from '$/user/entities/user.entity';
-import { handleError } from '$/utils/error-handler.util';
+import { handleError } from '$/common/helpers/exeption.helper';
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';

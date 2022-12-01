@@ -1,5 +1,5 @@
 import { User } from '$/user/entities/user.entity';
-import { handleError } from '$/utils/error-handler.util';
+import { handleError } from '$/common/helpers/exeption.helper';
 import {
   Body,
   Controller,
@@ -14,7 +14,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginResponseDto } from './dto/login-responde.dto';
 import { LoginDto } from './dto/login.dto';
-import { LoggedUser } from './logged-user.decorator';
+import { LoggedUser } from '../common/decorators/logged-user.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
