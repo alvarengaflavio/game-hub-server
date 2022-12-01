@@ -43,9 +43,10 @@ model Profile {
 
 model Game {
   id        String      @id @default(uuid())
-  title     String
+  title     String      @unique
   coverUrl  String      @default("https://icon.azureedge.net/icon/prod-admin-game/d9b92090-123e-4c50-818f-1cb76a473f63/6daba886-3b4a-4d68-b407-d45fd69beef3/aa00014.jpg") @map("cover_url")
-  year       Int
+  videoUrl  String      @default("https://youtu.be/dScq4P5gn4A") @map("video_url")
+  year      Int
   score     Float
 
   genres    Genre[]
