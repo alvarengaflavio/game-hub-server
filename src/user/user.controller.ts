@@ -84,7 +84,7 @@ export class UserController {
   @Get(':id')
   @UseGuards(AuthGuard())
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Lista um usuário pelo ID' })
+  @ApiOperation({ summary: 'Listar um usuário pelo ID' })
   @ApiResponse({
     status: 200,
     description: 'Usuário encontrado e listado com sucesso',
@@ -109,7 +109,7 @@ export class UserController {
   @Patch(':id')
   @UseGuards(AuthGuard())
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Atualiza um usuário pelo ID' })
+  @ApiOperation({ summary: 'Atualizar um usuário pelo ID' })
   @ApiResponse({
     status: 200,
     description: 'Usuário atualizado com sucesso',

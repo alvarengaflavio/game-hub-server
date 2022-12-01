@@ -75,7 +75,7 @@ export class ProfileController {
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Atualiza um perfil pelo ID' })
+  @ApiOperation({ summary: 'Atualizar um perfil pelo ID' })
   async update(
     @Param('id') id: string,
     @Body() updateProfileDto: UpdateProfileDto,
