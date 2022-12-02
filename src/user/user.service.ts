@@ -52,11 +52,20 @@ export class UserService {
   }
 
   async create(dto: CreateUserDto): Promise<ResponseUser> {
-    if (dto.confirmPassword !== dto.password)
+    if (dto.confirmPassword !== dto.password) {
       throw {
         name: 'ValidationError',
         message: 'As senhas informadas não conferem',
       };
+    }
+
+    const ownerEmail = process.env.OWNER_EMAIL;
+    if (dto.isAdmin && dto.email !== ownerEmail) {
+      throw {
+        name: 'UnauthorizedError',
+        message: 'Você não tem permissão para criar um usuário administrador',
+      };
+    }
 
     delete dto.confirmPassword;
 
@@ -76,8 +85,23 @@ export class UserService {
     return user;
   }
 
-  async update(id: string, dto: UpdateUserDto) {
-    await this.findByID(id, this.userSelect);
+  async update(id: string, dto: UpdateUserDto, user: User) {
+    await this.findByID(id, this.userSelect); // Check if user exists
+
+    const superUser = {
+      id: await this.getOwnerId(),
+      email: process.env.OWNER_EMAIL,
+    };
+
+    // Email é do super usuário || Não é super usuário e está tentando atualizar o super usuário
+    if (
+      dto.email === superUser.email ||
+      (user.id !== superUser.id && id === superUser.id)
+    )
+      throw {
+        name: 'UnauthorizedError',
+        message: 'Você não tem permissão para atualizar os dados deste usuário',
+      };
 
     if (dto.password) {
       if (dto.confirmPassword !== dto.password) {
@@ -105,8 +129,16 @@ export class UserService {
     });
   }
 
-  async remove(id: string): Promise<void> {
-    await this.findByID(id, this.userSelect);
+  async remove(id: string, user: User): Promise<void> {
+    await this.findByID(id, this.userSelect); // Check if user exists
+    const superUserId = await this.getOwnerId();
+
+    if (id === superUserId)
+      throw {
+        name: 'UnauthorizedError',
+        message: 'Você não tem permissão para excluir este usuário',
+      };
+
     await this.prisma.user.delete({ where: { id } });
   }
 
@@ -127,5 +159,15 @@ export class UserService {
       };
 
     return user;
+  }
+
+  async getOwnerId(): Promise<string> {
+    const ownerEmail = process.env.OWNER_EMAIL;
+    const owner = await this.prisma.user.findUnique({
+      where: { email: ownerEmail },
+      select: { id: true },
+    });
+
+    return owner.id;
   }
 }

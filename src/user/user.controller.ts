@@ -1,3 +1,4 @@
+import { LoggedUser } from '$/common/decorators/logged-user.decorator';
 import { handleError } from '$/common/helpers/exeption.helper';
 import { prismaExeptionFilter } from '$/common/helpers/prisma-exeption.filter';
 import {
@@ -21,6 +22,7 @@ import {
 } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { User } from './entities/user.entity';
 import { UserService } from './user.service';
 
 @ApiTags('user')
@@ -122,9 +124,28 @@ export class UserController {
     status: 404,
     description: 'Usuário não encontrado',
   })
-  async update(@Param('id') id: string, @Body() dto: UpdateUserDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateUserDto,
+    @LoggedUser() user: User,
+  ) {
     try {
-      const updatedUser = await this.userService.update(id, dto);
+      // Não admin tornando admin
+      if (!user.isAdmin && dto.isAdmin)
+        throw {
+          name: 'UnauthorizedError',
+          message:
+            'Você não tem permissão para tornar um usuário administrador',
+        };
+
+      // Não é o próprio usuário e não é admin
+      if (id !== user.id && !user.isAdmin)
+        throw {
+          name: 'UnauthorizedError',
+          message: 'Você não tem permissão para atualizar este usuário',
+        };
+
+      const updatedUser = await this.userService.update(id, dto, user);
 
       return updatedUser;
     } catch (err) {
@@ -149,9 +170,16 @@ export class UserController {
     description: 'Usuário não encontrado',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string, @LoggedUser() user: User) {
     try {
-      await this.userService.remove(id);
+      if (!user.isAdmin && id !== user.id)
+        // Não é admin e não é o próprio usuário
+        throw {
+          name: 'UnauthorizedError',
+          message: 'Você não tem permissão para excluir este usuário',
+        };
+
+      await this.userService.remove(id, user);
     } catch (err) {
       handleError({
         name: err.name,
