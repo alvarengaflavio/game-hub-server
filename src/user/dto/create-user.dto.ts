@@ -7,6 +7,7 @@ import {
   MinLength,
   Matches,
   MaxLength,
+  IsOptional,
 } from 'class-validator';
 
 export class CreateUserDto {
@@ -62,6 +63,7 @@ export class CreateUserDto {
   cpf: string;
 
   @IsBoolean()
+  @IsOptional()
   @ApiProperty({
     description: 'Usuário é administrador?',
     example: false,
