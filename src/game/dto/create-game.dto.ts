@@ -5,6 +5,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  IsUppercase,
   IsUUID,
   Matches,
 } from 'class-validator';
@@ -51,10 +52,11 @@ export class CreateGameDto {
   })
   score?: number;
 
-  @IsUUID('all', { each: true })
+  @IsString({ each: true })
+  @IsUppercase({ each: true })
   @ApiProperty({
     description: 'The genres of the game',
-    example: ['a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'],
+    example: ['ADVENTURE', 'ACTION RPG', 'RPG'],
   })
   genres: string[];
 }

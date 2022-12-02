@@ -1,15 +1,37 @@
+import { PrismaService } from '$/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { CreateGenreDto } from './dto/create-genre.dto';
 import { UpdateGenreDto } from './dto/update-genre.dto';
+import { ResponseGenres } from './interfaces/response-genres.interface';
+import { SelectGenres } from './interfaces/select-genres.interface';
 
 @Injectable()
 export class GenresService {
-  create(createGenreDto: CreateGenreDto) {
-    return 'This action adds a new genre';
+  private readonly selectGenres: SelectGenres = {
+    id: true,
+    name: true,
+    createdAt: true,
+    updatedAt: false,
+  };
+
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(dto: CreateGenreDto): Promise<ResponseGenres> {
+    const data: Prisma.GenresCreateInput = {
+      name: dto.name,
+    };
+
+    return this.prisma.genres.create({
+      data,
+      select: this.selectGenres,
+    });
   }
 
-  findAll() {
-    return `This action returns all genres`;
+  async findAll(): Promise<ResponseGenres[]> {
+    return this.prisma.genres.findMany({
+      select: { ...this.selectGenres, createdAt: false },
+    });
   }
 
   findOne(id: number) {

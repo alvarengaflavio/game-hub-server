@@ -1,4 +1,4 @@
-export class Genre {
+export class ResponseGenres {
   id?: string;
   name: string;
   createdAt?: Date;
