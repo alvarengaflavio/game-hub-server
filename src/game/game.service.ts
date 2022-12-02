@@ -8,6 +8,22 @@ import { Game } from './entities/game.entity';
 
 @Injectable()
 export class GameService {
+  private readonly selectGame = {
+    id: true,
+    title: true,
+    genres: {
+      select: {
+        name: true,
+      },
+    },
+    year: true,
+    score: true,
+    coverUrl: true,
+    videoUrl: true,
+    createdAt: true,
+    updatedAt: false,
+  };
+
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateGameDto): Promise<Game> {
@@ -25,21 +41,7 @@ export class GameService {
 
     return this.prisma.game.create({
       data,
-      select: {
-        id: true,
-        title: true,
-        genres: {
-          select: {
-            name: true,
-          },
-        },
-        year: true,
-        score: true,
-        coverUrl: true,
-        videoUrl: true,
-        createdAt: true,
-        updatedAt: false,
-      },
+      select: this.selectGame,
     });
   }
 
@@ -53,19 +55,11 @@ export class GameService {
   > {
     const data = await this.prisma.game.findMany({
       select: {
-        id: true,
-        title: true,
-        genres: {
-          select: {
-            name: true,
-          },
-        },
-        year: true,
+        ...this.selectGame,
         score: false,
         coverUrl: false,
         videoUrl: false,
         createdAt: false,
-        updatedAt: false,
       },
     });
 
@@ -75,7 +69,7 @@ export class GameService {
     }));
   }
 
-  findOne(id: number) {
+  async findOne(id: string) {
     return `This action returns a #${id} game`;
   }
 

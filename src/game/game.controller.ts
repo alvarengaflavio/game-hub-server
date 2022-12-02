@@ -67,7 +67,14 @@ export class GameController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.gameService.findOne(+id);
+    try {
+      return this.gameService.findOne(id);
+    } catch (err) {
+      handleError({
+        name: err.name,
+        message: err.message,
+      });
+    }
   }
 
   @Patch(':id')
