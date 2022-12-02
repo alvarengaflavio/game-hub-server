@@ -41,6 +41,9 @@ export class ProfileService {
       },
     };
 
+    // se o usuário passar o ID do usuário, ele será usado
+    'userId' in dto && (data.user.connect.id = dto.userId);
+
     return this.prisma.profile.create({
       data,
       select: {
@@ -71,10 +74,21 @@ export class ProfileService {
     dto: UpdateProfileDto,
     user: User,
   ): Promise<ResponseProfile> {
-    const profile = await this.getOwner(id);
+    const profileOwner = await this.getOwnerId(id);
+    // Se o usuário não for admin, só pode atualizar o próprio perfil
+    if (!user.isAdmin && user.id !== profileOwner)
+      throw {
+        name: 'UnauthorizedError',
+        message: 'Você não tem permissão para atualizar este perfil.',
+      };
 
-    if (!user.isAdmin && profile.user.id !== user.id) return null;
-    // confirmar se o usuário é o dono do perfil ou se é admin
+    const superUserId = await this.getSuperUserId();
+
+    if (superUserId !== user.id && profileOwner === superUserId)
+      throw {
+        name: 'ForbiddenError',
+        message: 'Você não tem permissão para alterar este perfil',
+      };
 
     const data = { ...dto };
 
@@ -116,25 +130,22 @@ export class ProfileService {
     return profile;
   }
 
-  async getOwner(id: string): Promise<{ id: string; user: { id: string } }> {
+  async getOwnerId(id: string): Promise<string> {
     const profile = await this.prisma.profile.findUnique({
       where: { id },
-      select: {
-        id: true,
-        user: {
-          select: {
-            id: true,
-          },
-        },
-      },
+      select: { userId: true },
     });
 
-    if (!profile)
-      throw {
-        name: 'NotFoundError',
-        message: `Perfil com ID '${id}' não encontrado`,
-      };
+    return profile.userId;
+  }
 
-    return profile;
+  async getSuperUserId(): Promise<string> {
+    const superUserEmail = process.env.OWNER_EMAIL;
+    const superUserId = await this.prisma.user.findUnique({
+      where: { email: superUserEmail },
+      select: { id: true },
+    });
+
+    return superUserId.id;
   }
 }

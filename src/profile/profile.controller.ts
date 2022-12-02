@@ -36,6 +36,14 @@ export class ProfileController {
   @ApiOperation({ summary: 'Criar um novo perfil' })
   async create(@LoggedUser() user: User, @Body() dto: CreateProfileDto) {
     try {
+      if ('userId' in dto)
+        if (dto.userId !== user.id && !user.isAdmin)
+          throw {
+            name: 'UnauthorizedError',
+            message:
+              'Você não tem permissão para criar um perfil para outro usuário.',
+          };
+
       const newProfile = await this.profileService.create(user.id, dto);
       return newProfile;
     } catch (err) {
@@ -88,12 +96,6 @@ export class ProfileController {
         user,
       );
 
-      if (!updatedProfile)
-        throw {
-          name: 'UnauthorizedError',
-          message: 'Você não tem permissão para atualizar este perfil.',
-        };
-
       return updatedProfile;
     } catch (err) {
       handleError({
@@ -114,8 +116,15 @@ export class ProfileController {
     description: 'Perfil não encontrado',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string, @LoggedUser() user: User) {
     try {
+      // Se o usuário não for admin, só pode excluir o próprio perfil
+      if (!user.isAdmin && user.id !== id)
+        throw {
+          name: 'UnauthorizedError',
+          message: 'Você não tem permissão para excluir este perfil.',
+        };
+
       await this.profileService.remove(id);
     } catch (err) {
       handleError({
