@@ -13,6 +13,11 @@ export function prismaExeptionFilter(err: any, message: string): void {
         err.message = 'CPF já cadastrado';
       }
     }
+
+    if (err.code === 'P2025') {
+      err.name = 'BadRequestError';
+      err.message = err.meta?.cause;
+    }
   }
 
   if (err instanceof PrismaClientValidationError) {
