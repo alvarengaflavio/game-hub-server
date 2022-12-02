@@ -52,8 +52,17 @@ export class GameController {
   }
 
   @Get()
-  findAll() {
-    return this.gameService.findAll();
+  @ApiOperation({ summary: 'Listar todos os jogos' })
+  async findAll() {
+    try {
+      const games = await this.gameService.findAll();
+      return games;
+    } catch (err) {
+      handleError({
+        name: err.name,
+        message: err.message,
+      });
+    }
   }
 
   @Get(':id')
