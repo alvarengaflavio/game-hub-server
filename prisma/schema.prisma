@@ -11,85 +11,85 @@ datasource db {
 }
 
 model User {
-  id       String  @id @default(uuid())
+  id       String     @id @default(uuid())
   name     String
-  email    String  @unique
+  email    String     @unique
   password String
-  cpf      String  @unique
-  isAdmin  Boolean @default(false) @map("is_admin")
+  cpf      String     @unique
+  isAdmin  Boolean    @default(false) @map("is_admin")
 
   profiles Profile[]
   games    UserGame[] // Relacionamento N:N com Game através da tabela UserGame
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
 
   @@map("user")
 }
 
 model Profile {
-  id        String     @id @default(uuid())
+  id        String      @id @default(uuid())
   title     String
-  avatarUrl String     @default("https://i.pinimg.com/originals/ef/cd/58/efcd58c295c0374a9c37e62e40ebd6a9.jpg") @map("avatar_url")
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String     @map("user_id")
-  favorites Favorite[] // relacionamento N:N com User através da tabela UserGame
+  avatarUrl String      @default("https://i.pinimg.com/originals/ef/cd/58/efcd58c295c0374a9c37e62e40ebd6a9.jpg") @map("avatar_url")
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String      @map("user_id")
+  favorites Favorite[]  // relacionamento N:N com User através da tabela UserGame
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
 
   @@map("profile")
 }
 
 model Game {
-  id       String @id @default(uuid())
-  title    String @unique
-  coverUrl String @default("https://icon.azureedge.net/icon/prod-admin-game/d9b92090-123e-4c50-818f-1cb76a473f63/6daba886-3b4a-4d68-b407-d45fd69beef3/aa00014.jpg") @map("cover_url")
-  videoUrl String @default("https://youtu.be/dScq4P5gn4A") @map("video_url")
+  id       String       @id @default(uuid())
+  title    String       @unique
+  coverUrl String       @default("https://icon.azureedge.net/icon/prod-admin-game/d9b92090-123e-4c50-818f-1cb76a473f63/6daba886-3b4a-4d68-b407-d45fd69beef3/aa00014.jpg") @map("cover_url")
+  videoUrl String       @default("https://youtu.be/dScq4P5gn4A") @map("video_url")
   year     String
-  score    Float  @default(0)
+  score    Float        @default(0)
 
   genres    Genres[]
-  users     UserGame[] // relacionamento N:N com User através da tabela UserGame
-  favorites Favorite[] // relacionamento N:N com Profile
+  users     UserGame[]  // relacionamento N:N com User através da tabela UserGame
+  favorites Favorite[]  // relacionamento N:N com Profile
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
 
   @@map("game")
 }
 
 model Genres {
-  id    String @id @default(uuid())
-  name  String
+  id    String        @id @default(uuid())
+  name  String        @unique
   games Game[]
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
 
   @@map("genres")
 }
 
 model Favorite {
-  id        String  @id @default(uuid())
-  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  profileId String  @map("profile_id")
-  games     Game[] //  relacionamento N:N com Game
+  id        String    @id @default(uuid())
+  profile   Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId String    @map("profile_id")
+  games     Game[]    // relacionamento N:N com Game
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
 
   @@map("favorite")
 }
 
 model UserGame {
-  id     String @id @default(uuid())
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String @map("user_id")
-  game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  gameId String @map("game_id")
+  id     String       @id @default(uuid())
+  user   User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String       @map("user_id")
+  game   Game         @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  gameId String       @map("game_id")
 
-  createdAt DateTime @default(now()) @map("created_at")
+  createdAt DateTime  @default(now()) @map("created_at")
 
   @@unique([userId, gameId]) // Não pode ter um jogo repetido para o mesmo usuário
   @@map("user_to_game")
