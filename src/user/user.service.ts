@@ -59,15 +59,8 @@ export class UserService {
       };
     }
 
-    const ownerEmail = process.env.OWNER_EMAIL;
-    if (dto.isAdmin && dto.email !== ownerEmail) {
-      throw {
-        name: 'UnauthorizedError',
-        message: 'Você não tem permissão para criar um usuário administrador',
-      };
-    }
-
     delete dto.confirmPassword;
+    dto.isAdmin = false;
 
     const data: User = {
       ...dto,
