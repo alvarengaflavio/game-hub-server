@@ -19,7 +19,7 @@ export class GameService {
       score: dto.score,
 
       genres: {
-        connect: dto.genres.map((id) => ({ id })),
+        connect: dto.genres.map((name) => ({ name })),
       },
     };
 
