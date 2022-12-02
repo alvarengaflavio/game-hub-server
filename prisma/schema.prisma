@@ -49,7 +49,7 @@ model Game {
   year      Int
   score     Float
 
-  genres    Genre[]
+  genres    Genres[]
   users     UserGame[]  // relacionamento N:N com User através da tabela UserGame
   favorites Favorite[]  // relacionamento N:N com Profile
 
@@ -59,7 +59,7 @@ model Game {
   @@map("game")
 }
 
-model Genre {
+model Genres {
   id        String    @id @default(uuid())
   name      String
   games     Game[]
