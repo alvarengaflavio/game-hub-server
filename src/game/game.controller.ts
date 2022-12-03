@@ -18,8 +18,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
-import { Game } from './entities/game.entity';
 import { GameService } from './game.service';
+import { ResponseGame } from './interfaces/response-game.interface';
 
 @ApiTags('game')
 @UseGuards(AuthGuard())
@@ -45,7 +45,7 @@ export class GameController {
     } catch (err) {
       prismaExeptionFilter(
         err,
-        'Nome do jogo já existe ou lista de gêneros contém gênero(s) inválido(s).',
+        'Nome do jogo já existe ou lista de gêneros contém gênero inválido.',
       );
       handleError({
         name: err.name,
@@ -56,7 +56,7 @@ export class GameController {
 
   @Get()
   @ApiOperation({ summary: 'Listar todos os jogos' })
-  async findAll() {
+  async findAll(): Promise<ResponseGame[]> {
     try {
       const games = await this.gameService.findAll();
       return games;
@@ -70,7 +70,7 @@ export class GameController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Buscar um jogo pelo id' })
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string): Promise<ResponseGame> {
     try {
       return await this.gameService.findOne(id);
     } catch (err) {
@@ -82,13 +82,23 @@ export class GameController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() dto: UpdateGameDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateGameDto,
+    @LoggedUser() user: User,
+  ): Promise<ResponseGame> {
     try {
+      if (!user.isAdmin)
+        throw {
+          name: 'UnauthorizedError',
+          message: 'Você não tem permissão para atualizar um jogo.',
+        };
+
       return await this.gameService.update(id, dto);
     } catch (err) {
       prismaExeptionFilter(
         err,
-        'Nome do jogo já existe ou lista de gêneros contém gênero(s) inválido(s).',
+        'Nome do jogo já existe ou lista de gêneros contém gênero inválido.',
       );
       handleError({
         name: err.name,
@@ -100,14 +110,16 @@ export class GameController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Excluir um Jogo pelo ID' })
-  async remove(@LoggedUser() user: User, @Param('id') id: string) {
+  async remove(
+    @LoggedUser() user: User,
+    @Param('id') id: string,
+  ): Promise<void> {
     try {
-      if (!user.isAdmin) {
+      if (!user.isAdmin)
         throw {
           name: 'UnauthorizedError',
-          message: 'Apenas administradores podem excluir um jogo.',
+          message: 'Você não tem permissão para excluir um jogo.',
         };
-      }
 
       await this.gameService.remove(id);
     } catch (err) {

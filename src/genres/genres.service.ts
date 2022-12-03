@@ -28,21 +28,45 @@ export class GenresService {
     });
   }
 
-  async findAll(): Promise<ResponseGenres[]> {
-    return this.prisma.genres.findMany({
-      select: { ...this.selectGenres, createdAt: false },
+  async findAll(): Promise<string[]> {
+    const genres = await this.prisma.genres.findMany({
+      select: { ...this.selectGenres, createdAt: false, id: false },
+      orderBy: { name: 'asc' },
     });
+
+    return genres.map((genre) => genre.name);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} genre`;
+  async findOne(name: string) {
+    const genre = await this.findByName(name);
+
+    return genre;
   }
 
-  update(id: number, updateGenreDto: UpdateGenreDto) {
+  async update(id: number, dto: UpdateGenreDto) {
     return `This action updates a #${id} genre`;
   }
 
-  remove(id: number) {
+  async remove(id: number) {
     return `This action removes a #${id} genre`;
+  }
+
+  /*  ************************************************************************
+   **********************     Métodos Adicionais     **********************
+   ************************************************************************  */
+
+  async findByName(name: string): Promise<ResponseGenres> {
+    const foundGenre = await this.prisma.genres.findUnique({
+      where: { name },
+      select: { ...this.selectGenres, updatedAt: true },
+    });
+
+    if (!foundGenre)
+      throw {
+        name: 'NotFoundError',
+        message: `Gênero com o nome '${name}' não encontrado`,
+      };
+
+    return foundGenre;
   }
 }

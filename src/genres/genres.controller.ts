@@ -28,7 +28,7 @@ export class GenresController {
 
   @Post()
   @ApiOperation({ summary: 'Criar um novo gênero' })
-  create(@LoggedUser() user: User, @Body() dto: CreateGenreDto) {
+  async create(@LoggedUser() user: User, @Body() dto: CreateGenreDto) {
     try {
       if (!user.isAdmin) {
         throw {
@@ -37,7 +37,7 @@ export class GenresController {
         };
       }
 
-      const newGenre = this.genresService.create(dto);
+      const newGenre = await this.genresService.create(dto);
 
       return newGenre;
     } catch (err) {
@@ -51,9 +51,9 @@ export class GenresController {
 
   @Get()
   @ApiOperation({ summary: 'Listar todos os gêneros' })
-  async findAll(): Promise<ResponseGenres[]> {
+  async findAll(): Promise<string[]> {
     try {
-      const genres = await this.genresService.findAll();
+      const genres = this.genresService.findAll();
 
       return genres;
     } catch (err) {
@@ -64,18 +64,30 @@ export class GenresController {
     }
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.genresService.findOne(+id);
+  @Get(':name')
+  @ApiOperation({
+    summary: 'Buscar um gênero pelo NOME',
+    description:
+      'Buscar um gênero pelo seu NOME. Não é necessário passar o ID. O nome deve ser passado na URL com o parâmetro "name" e com todas as letras maiúsculas.',
+  })
+  async findOne(@Param('name') name: string) {
+    try {
+      return await this.genresService.findOne(name.toUpperCase());
+    } catch (err) {
+      handleError({
+        name: err.name,
+        message: err.message,
+      });
+    }
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateGenreDto: UpdateGenreDto) {
-    return this.genresService.update(+id, updateGenreDto);
+  async update(@Param('id') id: string, @Body() dto: UpdateGenreDto) {
+    return this.genresService.update(+id, dto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string) {
     return this.genresService.remove(+id);
   }
 }
