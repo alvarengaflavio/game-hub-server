@@ -18,6 +18,7 @@ export class GameService {
       },
     },
     year: true,
+    developer: false,
     score: true,
     coverUrl: true,
     videoUrl: true,
@@ -27,29 +28,33 @@ export class GameService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(dto: CreateGameDto): Promise<Game> {
+  async create(dto: CreateGameDto): Promise<ResponseGame> {
     const data: Prisma.GameCreateInput = {
       title: dto.title,
       year: dto.year,
-      coverUrl: dto.coverUrl,
-      videoUrl: dto.videoUrl,
-      score: dto.score,
+      developer: dto?.developer,
+      coverUrl: dto?.coverUrl,
+      videoUrl: dto?.videoUrl,
+      score: dto?.score,
 
       genres: {
         connect: dto.genres.map((name) => ({ name })),
       },
     };
 
-    return this.prisma.game.create({
+    const newGame = await this.prisma.game.create({
       data,
-      select: this.selectGame,
+      select: { ...this.selectGame, developer: true },
     });
+
+    return { ...newGame, genres: newGame.genres.map((genre) => genre.name) };
   }
 
   async findAll(): Promise<ResponseGame[]> {
     const data = await this.prisma.game.findMany({
       select: {
         ...this.selectGame,
+        developer: true,
         score: false,
         coverUrl: false,
         videoUrl: false,
@@ -85,7 +90,7 @@ export class GameService {
   async findGameById(id: string): Promise<Game> {
     const game = await this.prisma.game.findUnique({
       where: { id },
-      select: { ...this.selectGame, updatedAt: true },
+      select: { ...this.selectGame, developer: true, updatedAt: true },
     });
 
     if (!game) {

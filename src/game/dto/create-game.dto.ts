@@ -14,7 +14,7 @@ export class CreateGameDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty({
-    description: 'The name of the game',
+    description: 'O título do jogo',
     example: 'The Legend of Zelda: Breath of the Wild',
   })
   title: string;
@@ -23,15 +23,23 @@ export class CreateGameDto {
   @Matches(/^(19[5-9]\d|20[0-4]\d|2050)$/)
   @IsNotEmpty()
   @ApiProperty({
-    description: 'The year of the game',
+    description: 'O ano de lançamento do jogo',
     example: '2017',
   })
   year: string;
 
   @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'A desenvolvedora do jogo',
+    example: 'Nintendo',
+  })
+  developer: string;
+
+  @IsString()
   @IsNotEmpty()
   @ApiProperty({
-    description: 'The cover image of the game',
+    description: 'A URL da capa do jogo',
     example: 'https://i.imgur.com/1Q2wYrG.jpg',
   })
   coverUrl: string;
@@ -39,7 +47,7 @@ export class CreateGameDto {
   @IsString()
   @IsNotEmpty()
   @ApiProperty({
-    description: 'The video of the game',
+    description: 'O URL do trailer do jogo',
     example: 'https://www.youtube.com/watch?v=1h7KV2sjUWY',
   })
   videoUrl: string;
@@ -47,7 +55,7 @@ export class CreateGameDto {
   @IsNumber()
   @IsOptional()
   @ApiProperty({
-    description: 'The score of the game',
+    description: 'A nota do jogo',
     example: 10,
   })
   score?: number;
@@ -55,7 +63,7 @@ export class CreateGameDto {
   @IsString({ each: true })
   @IsUppercase({ each: true })
   @ApiProperty({
-    description: 'The genres of the game',
+    description: 'Os gêneros do jogo',
     example: ['ADVENTURE', 'ACTION RPG', 'RPG'],
   })
   genres: string[];
