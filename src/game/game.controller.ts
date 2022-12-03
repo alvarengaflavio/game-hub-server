@@ -7,6 +7,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -67,9 +69,9 @@ export class GameController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Buscar um jogo pelo id' })
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     try {
-      return this.gameService.findOne(id);
+      return await this.gameService.findOne(id);
     } catch (err) {
       handleError({
         name: err.name,
@@ -79,14 +81,23 @@ export class GameController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateGameDto: UpdateGameDto) {
-    return this.gameService.update(+id, updateGameDto);
+  update(@Param('id') id: string, @Body() upd: UpdateGameDto) {
+    return this.gameService.update(id, upd);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Excluir um Jogo pelo ID' })
+  async remove(@LoggedUser() user: User, @Param('id') id: string) {
     try {
-      return this.gameService.remove(id);
+      if (!user.isAdmin) {
+        throw {
+          name: 'UnauthorizedError',
+          message: 'Apenas administradores podem excluir um jogo.',
+        };
+      }
+
+      await this.gameService.remove(id);
     } catch (err) {
       handleError({
         name: err.name,

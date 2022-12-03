@@ -65,15 +65,17 @@ export class GameService {
 
   async findOne(id: string): Promise<ResponseGame> {
     const game = await this.findGameById(id);
+
     return { ...game, genres: game.genres.map((genre) => genre.name) };
   }
 
-  update(id: number, updateGameDto: UpdateGameDto) {
+  update(id: string, upd: UpdateGameDto) {
     return `This action updates a #${id} game`;
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} game`;
+  async remove(id: string) {
+    await this.findGameById(id); // Verifica se o jogo existe
+    await this.prisma.game.delete({ where: { id } });
   }
 
   /*  ********************************************************************************************************************
@@ -81,7 +83,7 @@ export class GameService {
    ******************************************************************************************************************** */
 
   async findGameById(id: string): Promise<Game> {
-    const game = this.prisma.game.findUnique({
+    const game = await this.prisma.game.findUnique({
       where: { id },
       select: { ...this.selectGame, updatedAt: true },
     });
