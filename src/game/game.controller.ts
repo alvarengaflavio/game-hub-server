@@ -66,6 +66,7 @@ export class GameController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Buscar um jogo pelo id' })
   findOne(@Param('id') id: string) {
     try {
       return this.gameService.findOne(id);
@@ -84,6 +85,13 @@ export class GameController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.gameService.remove(+id);
+    try {
+      return this.gameService.remove(id);
+    } catch (err) {
+      handleError({
+        name: err.name,
+        message: err.message,
+      });
+    }
   }
 }

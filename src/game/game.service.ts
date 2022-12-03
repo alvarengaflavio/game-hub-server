@@ -5,6 +5,7 @@ import { Prisma } from '@prisma/client';
 import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
 import { Game } from './entities/game.entity';
+import { ResponseGame } from './interfaces/response-game.interface';
 
 @Injectable()
 export class GameService {
@@ -45,14 +46,7 @@ export class GameService {
     });
   }
 
-  async findAll(): Promise<
-    {
-      genres: string[];
-      id: string;
-      title: string;
-      year: string;
-    }[]
-  > {
+  async findAll(): Promise<ResponseGame[]> {
     const data = await this.prisma.game.findMany({
       select: {
         ...this.selectGame,
@@ -69,15 +63,36 @@ export class GameService {
     }));
   }
 
-  async findOne(id: string) {
-    return `This action returns a #${id} game`;
+  async findOne(id: string): Promise<ResponseGame> {
+    const game = await this.findGameById(id);
+    return { ...game, genres: game.genres.map((genre) => genre.name) };
   }
 
   update(id: number, updateGameDto: UpdateGameDto) {
     return `This action updates a #${id} game`;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} game`;
+  }
+
+  /*  ********************************************************************************************************************
+   *******************************************      Métodos Adicionais      *******************************************
+   ******************************************************************************************************************** */
+
+  async findGameById(id: string): Promise<Game> {
+    const game = this.prisma.game.findUnique({
+      where: { id },
+      select: { ...this.selectGame, updatedAt: true },
+    });
+
+    if (!game) {
+      throw {
+        name: 'NotFoundError',
+        message: `Jogo com Id '${id}' não encontrado.`,
+      };
+    }
+
+    return game;
   }
 }
