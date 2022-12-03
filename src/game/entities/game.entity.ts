@@ -9,6 +9,7 @@ export class Game {
   coverUrl: string;
   videoUrl: string;
   score?: number;
+  price?: number;
 
   createdAt?: Date;
   updatedAt?: Date;

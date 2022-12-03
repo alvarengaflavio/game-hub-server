@@ -5,6 +5,7 @@ export class ResponseGame {
   developer?: string;
   genres: string[];
   score?: number;
+  price?: number;
   coverUrl?: string;
   videoUrl?: string;
   createdAt?: Date;

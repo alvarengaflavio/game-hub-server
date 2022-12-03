@@ -1,12 +1,11 @@
-import { Genre } from '$/genres/entities/genre.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsNotEmpty,
   IsNumber,
   IsOptional,
+  IsPositive,
   IsString,
   IsUppercase,
-  IsUUID,
   Matches,
 } from 'class-validator';
 
@@ -52,13 +51,23 @@ export class CreateGameDto {
   })
   videoUrl: string;
 
-  @IsNumber()
+  @IsNumber({ allowInfinity: false, allowNaN: false, maxDecimalPlaces: 2 })
+  @IsPositive()
   @IsOptional()
   @ApiProperty({
     description: 'A nota do jogo',
     example: 10,
   })
   score?: number;
+
+  @IsNumber({ allowInfinity: false, allowNaN: false, maxDecimalPlaces: 2 })
+  @IsPositive()
+  @IsOptional()
+  @ApiProperty({
+    description: 'O preço do jogo',
+    example: 59.99,
+  })
+  price?: number;
 
   @IsString({ each: true })
   @IsUppercase({ each: true })
