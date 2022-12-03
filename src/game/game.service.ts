@@ -99,8 +99,6 @@ export class GameService {
       )
       .flat();
 
-    console.log(filter, filter.length);
-
     // se não existir, retorna erro
     if (filter.length === 0) {
       throw {
