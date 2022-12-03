@@ -1,4 +1,3 @@
-import { Genre } from '$/genres/entities/genre.entity';
 import { PrismaService } from '$/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
@@ -20,6 +19,7 @@ export class GameService {
     year: true,
     developer: false,
     score: true,
+    price: true,
     coverUrl: true,
     videoUrl: true,
     createdAt: true,
@@ -30,12 +30,13 @@ export class GameService {
 
   async create(dto: CreateGameDto): Promise<ResponseGame> {
     const data: Prisma.GameCreateInput = {
-      title: dto.title,
-      year: dto.year,
+      title: dto?.title,
+      year: dto?.year,
       developer: dto?.developer,
       coverUrl: dto?.coverUrl,
       videoUrl: dto?.videoUrl,
       score: dto?.score,
+      price: dto?.price,
 
       genres: {
         connect: dto.genres.map((name) => ({ name })),
@@ -54,7 +55,7 @@ export class GameService {
     const data = await this.prisma.game.findMany({
       select: {
         ...this.selectGame,
-        developer: true,
+        developer: false,
         score: false,
         coverUrl: false,
         videoUrl: false,
@@ -74,8 +75,50 @@ export class GameService {
     return { ...game, genres: game.genres.map((genre) => genre.name) };
   }
 
-  update(id: string, upd: UpdateGameDto) {
-    return `This action updates a #${id} game`;
+  async update(id: string, dto: UpdateGameDto) {
+    await this.findGameById(id); // Verifica se o jogo existe
+
+    const data: Prisma.GameUpdateInput = {
+      title: dto.title,
+      year: dto.year,
+      developer: dto?.developer,
+      score: dto?.score,
+      price: dto?.price,
+      coverUrl: dto?.coverUrl,
+      videoUrl: dto?.videoUrl,
+
+      genres: {
+        set: dto?.genres?.map((name) => ({ name })),
+      },
+    };
+
+    // checa se existe alguma chave válida no dto
+    const filter = Object.keys(dto)
+      .map((dtoKey) =>
+        Object.keys(data).filter((gameKey) => gameKey === dtoKey),
+      )
+      .flat();
+
+    console.log(filter, filter.length);
+
+    // se não existir, retorna erro
+    if (filter.length === 0) {
+      throw {
+        name: 'BadRequestError',
+        message: 'Nenhum dado válido foi informado.',
+      };
+    }
+
+    const updatedGame = await this.prisma.game.update({
+      where: { id },
+      data,
+      select: { ...this.selectGame, developer: true, updatedAt: true },
+    });
+
+    return {
+      ...updatedGame,
+      genres: updatedGame.genres.map((genre) => genre.name),
+    };
   }
 
   async remove(id: string) {
@@ -90,7 +133,11 @@ export class GameService {
   async findGameById(id: string): Promise<Game> {
     const game = await this.prisma.game.findUnique({
       where: { id },
-      select: { ...this.selectGame, developer: true, updatedAt: true },
+      select: {
+        ...this.selectGame,
+        developer: true,
+        updatedAt: true,
+      },
     });
 
     if (!game) {

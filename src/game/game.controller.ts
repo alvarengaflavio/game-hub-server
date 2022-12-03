@@ -18,6 +18,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
+import { Game } from './entities/game.entity';
 import { GameService } from './game.service';
 
 @ApiTags('game')
@@ -81,8 +82,19 @@ export class GameController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() upd: UpdateGameDto) {
-    return this.gameService.update(id, upd);
+  async update(@Param('id') id: string, @Body() dto: UpdateGameDto) {
+    try {
+      return await this.gameService.update(id, dto);
+    } catch (err) {
+      prismaExeptionFilter(
+        err,
+        'Nome do jogo já existe ou lista de gêneros contém gênero(s) inválido(s).',
+      );
+      handleError({
+        name: err.name,
+        message: err.message,
+      });
+    }
   }
 
   @Delete(':id')
