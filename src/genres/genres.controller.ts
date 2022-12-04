@@ -1,23 +1,22 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-} from '@nestjs/common';
-import { GenresService } from './genres.service';
-import { CreateGenreDto } from './dto/create-genre.dto';
-import { UpdateGenreDto } from './dto/update-genre.dto';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
+import { LoggedUser } from '$/common/decorators/logged-user.decorator';
 import { handleError } from '$/common/helpers/exeption.helper';
 import { prismaExeptionFilter } from '$/common/helpers/prisma-exeption.filter';
-import { LoggedUser } from '$/common/decorators/logged-user.decorator';
 import { User } from '$/user/entities/user.entity';
-import { ResponseGenres } from './interfaces/response-genres.interface';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { CreateGenreDto } from './dto/create-genre.dto';
+import { UpdateGenreDto } from './dto/update-genre.dto';
+import { GenresService } from './genres.service';
 
 @ApiTags('genres')
 @UseGuards(AuthGuard())
@@ -41,7 +40,7 @@ export class GenresController {
 
       return newGenre;
     } catch (err) {
-      prismaExeptionFilter(err, 'Nome do gênero já existe.');
+      prismaExeptionFilter(err, 'O nome do gênero já existe.');
       handleError({
         name: err.name,
         message: err.message,
@@ -82,8 +81,28 @@ export class GenresController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() dto: UpdateGenreDto) {
-    return this.genresService.update(+id, dto);
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateGenreDto,
+    @LoggedUser() user: User,
+  ) {
+    try {
+      if (!user.isAdmin)
+        throw {
+          name: 'UnauthorizedError',
+          message: 'Você não tem permissão para atualizar um gênero.',
+        };
+
+      const updatedGenre = await this.genresService.update(id, dto);
+
+      return updatedGenre;
+    } catch (err) {
+      prismaExeptionFilter(err, 'O nome do gênero já existe.');
+      handleError({
+        name: err.name,
+        message: err.message,
+      });
+    }
   }
 
   @Delete(':id')

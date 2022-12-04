@@ -43,8 +43,24 @@ export class GenresService {
     return genre;
   }
 
-  async update(id: number, dto: UpdateGenreDto) {
-    return `This action updates a #${id} genre`;
+  async update(id: string, dto: UpdateGenreDto) {
+    await this.findById(id); // Check if genre exists
+
+    const data: Prisma.GenresUpdateInput = {
+      name: dto?.name,
+    };
+
+    if (!data.name)
+      throw {
+        name: 'BadRequestError',
+        message: 'Nenhum dado para atualizar.',
+      };
+
+    return this.prisma.genres.update({
+      where: { id },
+      data,
+      select: { ...this.selectGenres, updatedAt: true },
+    });
   }
 
   async remove(id: number) {
@@ -65,6 +81,21 @@ export class GenresService {
       throw {
         name: 'NotFoundError',
         message: `Gênero com o nome '${name}' não encontrado`,
+      };
+
+    return foundGenre;
+  }
+
+  async findById(id: string): Promise<ResponseGenres> {
+    const foundGenre = await this.prisma.genres.findUnique({
+      where: { id },
+      select: { ...this.selectGenres, updatedAt: true },
+    });
+
+    if (!foundGenre)
+      throw {
+        name: 'NotFoundError',
+        message: `Gênero com o nome '${id}' não encontrado`,
       };
 
     return foundGenre;
