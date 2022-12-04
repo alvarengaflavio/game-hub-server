@@ -49,7 +49,7 @@ export class AuthController {
   @ApiOperation({
     summary: 'Retornar usuário atenticado na sessão.',
   })
-  profile(@LoggedUser() user: User) {
+  async profile(@LoggedUser() user: User) {
     try {
       return user;
     } catch (err) {
