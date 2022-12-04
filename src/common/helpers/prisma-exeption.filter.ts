@@ -5,15 +5,16 @@ export function prismaExeptionFilter(err: any, message: string): void {
     if (err.code === 'P2002') {
       err.name = 'ConflictError';
       if (err.meta?.target?.includes('email')) {
-        err.message = 'Email já cadastrado';
+        err.message = "Email já cadastrado. O campo 'email' deve ser único.";
       }
 
       if (err.meta?.target?.includes('cpf')) {
-        err.message = 'CPF já cadastrado';
+        err.message = "CPF já cadastrado. O campo 'cpf' deve ser único.";
       }
 
       if (err.meta?.target?.includes('name')) {
-        err.message = 'Nome de gênero já cadastrado';
+        err.message =
+          "O nome do gênero já existe. O campo 'name' deve ser único.";
       }
     }
 
