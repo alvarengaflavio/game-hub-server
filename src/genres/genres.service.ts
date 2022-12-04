@@ -63,8 +63,11 @@ export class GenresService {
     });
   }
 
-  async remove(id: number) {
-    return `This action removes a #${id} genre`;
+  async remove(id: string) {
+    await this.findById(id); // Check if genre exists
+    await this.prisma.genres.delete({
+      where: { id },
+    });
   }
 
   /*  ************************************************************************

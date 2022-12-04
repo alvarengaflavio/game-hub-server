@@ -7,6 +7,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -81,6 +83,7 @@ export class GenresController {
   }
 
   @Patch(':id')
+  @ApiOperation({ summary: 'Atualizar um gênero' })
   async update(
     @Param('id') id: string,
     @Body() dto: UpdateGenreDto,
@@ -106,7 +109,22 @@ export class GenresController {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return this.genresService.remove(+id);
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Excluir um gênero pelo ID' })
+  async remove(@Param('id') id: string, @LoggedUser() user: User) {
+    try {
+      if (!user.isAdmin)
+        throw {
+          name: 'UnauthorizedError',
+          message: 'Você não tem permissão para excluir um gênero.',
+        };
+
+      await this.genresService.remove(id);
+    } catch (err) {
+      handleError({
+        name: err.name,
+        message: err.message,
+      });
+    }
   }
 }
