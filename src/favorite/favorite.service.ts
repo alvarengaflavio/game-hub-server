@@ -4,7 +4,7 @@ import { UpdateFavoriteDto } from './dto/update-favorite.dto';
 
 @Injectable()
 export class FavoriteService {
-  create(createFavoriteDto: CreateFavoriteDto) {
+  create(dto: CreateFavoriteDto) {
     return 'This action adds a new favorite';
   }
 
@@ -16,7 +16,7 @@ export class FavoriteService {
     return `This action returns a #${id} favorite`;
   }
 
-  update(id: number, updateFavoriteDto: UpdateFavoriteDto) {
+  update(id: number, dto: UpdateFavoriteDto) {
     return `This action updates a #${id} favorite`;
   }
 
