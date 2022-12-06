@@ -44,11 +44,21 @@ export class FavoriteController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Listar todos os favoritos' })
-  async findAll() {
+  @ApiOperation({
+    summary: 'Listar todos os favoritos',
+    description:
+      'Listar todos os favoritos de um perfil. Se administrador lista todos os perfis com favoritos',
+  })
+  async findAll(@LoggedUser() user: User) {
     try {
-      return await this.favoriteService.findAll();
+      if (user.isAdmin) {
+        return await this.favoriteService.findAll();
+      }
+
+      return await this.favoriteService.findAllByUserId(user.id);
     } catch (err) {
+      console.log(err);
+
       handleError({
         name: err.name,
         message: err.message,
@@ -66,6 +76,8 @@ export class FavoriteController {
     try {
       return await this.favoriteService.removeGame(user, dto);
     } catch (err) {
+      console.log(err);
+
       handleError({
         name: err.name,
         message: err.message,

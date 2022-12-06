@@ -93,6 +93,44 @@ export class FavoriteService {
     return this.prisma.favorite.findMany({ select: this.selectFavorite });
   }
 
+  async findAllByUserId(userId: string) {
+    const profileIds = await this.prisma.profile.findMany({
+      where: {
+        userId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    console.log(profileIds);
+
+    const favorites = await this.prisma.favorite.findMany({
+      where: {
+        profileId: {
+          in: profileIds.map((profile) => profile.id),
+        },
+      },
+      select: {
+        id: true,
+        profile: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+        games: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+      },
+    });
+
+    return favorites;
+  }
+
   async removeGame(user: User, dto: CreateFavoriteDto) {
     const { gameId, profileId } = dto;
     const isOwner = await this.isProfileOwner(profileId, user.id);
@@ -187,7 +225,13 @@ export class FavoriteService {
       },
     });
 
-    return games.games.map((game) => game.id);
+    if (!games)
+      throw {
+        name: 'NotFoundError',
+        message: `Nenhum jogo encontrado no perfil com o ID '${profileId}'`,
+      };
+
+    return games?.games?.map((game) => game.id);
   }
 
   // check if the game exists
