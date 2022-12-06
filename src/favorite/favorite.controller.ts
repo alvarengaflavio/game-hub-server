@@ -56,15 +56,31 @@ export class FavoriteController {
     }
   }
 
-  @Delete(':id')
+  @Delete()
   @ApiOperation({
     summary: 'Remover um jogo da lista de favoritos',
     description:
-      'O usuário pode remover um jogo da lista de favoritos através do ID do jogo.',
+      'O usuário pode remover um jogo da lista de favoritos de um perfil. É necessário que o usuário seja o dono do perfil ou um administrador.',
   })
-  async remove(@LoggedUser() user: User, @Param('id') id: string) {
+  async removeGame(@LoggedUser() user: User, @Body() dto: CreateFavoriteDto) {
     try {
-      return await this.favoriteService.remove(id, user);
+      return await this.favoriteService.removeGame(user, dto);
+    } catch (err) {
+      handleError({
+        name: err.name,
+        message: err.message,
+      });
+    }
+  }
+
+  @Delete('remove/:id')
+  @ApiOperation({
+    summary: 'Remover todos os favoritos de um perfil pelo ID do perfil',
+    description: 'Remover todos os favoritos de um perfil pelo ID do perfil',
+  })
+  async removeFavorite(@LoggedUser() user: User, @Param('id') id: string) {
+    try {
+      return await this.favoriteService.removeFavorite(id, user);
     } catch (err) {
       handleError({
         name: err.name,

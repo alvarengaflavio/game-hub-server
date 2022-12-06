@@ -93,7 +93,44 @@ export class FavoriteService {
     return this.prisma.favorite.findMany({ select: this.selectFavorite });
   }
 
-  async remove(id: string, user: User) {
+  async removeGame(user: User, dto: CreateFavoriteDto) {
+    const { gameId, profileId } = dto;
+    const isOwner = await this.isProfileOwner(profileId, user.id);
+
+    if (!isOwner && !user.isAdmin) {
+      throw {
+        name: 'ForbiddenError',
+        message: 'You are not allowed to remove this game from favorites',
+      };
+    }
+
+    const gamesInProfile = await this.checkGamesInProfile(profileId);
+
+    if (!gamesInProfile.includes(gameId)) {
+      throw {
+        name: 'NotFoundError',
+        message: `Game com o ID '${gameId}' não encontrado nos favoritos`,
+      };
+    }
+
+    const newGames = gamesInProfile.filter((game) => game !== gameId);
+
+    const data: Prisma.FavoriteUpdateInput = {
+      games: {
+        set: newGames.map((gameId) => ({ id: gameId })),
+      },
+    };
+
+    return this.prisma.favorite.update({
+      where: {
+        profileId,
+      },
+      data,
+      select: this.selectFavorite,
+    });
+  }
+
+  async removeFavorite(id: string, user: User) {
     const ownerId = await this.findFavoriteOwner(id);
 
     if (ownerId !== user.id && !user.isAdmin) {
