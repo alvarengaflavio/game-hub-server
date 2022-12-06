@@ -1,26 +1,207 @@
+import { PrismaService } from '$/prisma/prisma.service';
+import { User } from '$/user/entities/user.entity';
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { CreateFavoriteDto } from './dto/create-favorite.dto';
 import { UpdateFavoriteDto } from './dto/update-favorite.dto';
 
 @Injectable()
 export class FavoriteService {
-  create(dto: CreateFavoriteDto) {
-    return 'This action adds a new favorite';
+  private readonly selectFavorite = {
+    id: true,
+    profile: {
+      select: {
+        id: true,
+      },
+    },
+    games: {
+      select: {
+        id: true,
+      },
+    },
+  };
+  constructor(private readonly prisma: PrismaService) {}
+
+  async addGameToFavorite(dto: CreateFavoriteDto, user: User) {
+    const isProfileOwner = await this.isProfileOwner(dto.profileId, user.id);
+
+    if (!isProfileOwner && !user.isAdmin) {
+      throw {
+        name: 'ForbiddenError',
+        message: 'You are not allowed to add games to this profile',
+      };
+    }
+
+    const profileHasFavorites = await this.checkProfileFavorites(dto.profileId);
+    await this.findGameById(dto.gameId);
+
+    // SE PERFIL NÃO CONTÉM FAVORITOS
+    if (!profileHasFavorites) {
+      return this.createFavorite(dto);
+    }
+
+    return this.updateFavorite(dto);
   }
 
-  findAll() {
-    return `This action returns all favorite`;
+  async createFavorite(dto: CreateFavoriteDto) {
+    const data: Prisma.FavoriteCreateInput = {
+      profile: {
+        connect: {
+          id: dto.profileId,
+        },
+      },
+      games: {
+        connect: {
+          id: dto.gameId,
+        },
+      },
+    };
+
+    return this.prisma.favorite.create({
+      data,
+      select: this.selectFavorite,
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} favorite`;
+  async updateFavorite(dto: UpdateFavoriteDto) {
+    const gamesInProfile = await this.checkGamesInProfile(dto.profileId);
+
+    if (gamesInProfile.includes(dto.gameId))
+      throw {
+        name: 'ConflictError',
+        message: `Game com o ID '${dto.gameId}' já está nos favoritos`,
+      };
+
+    gamesInProfile.push(dto.gameId);
+
+    const data: Prisma.FavoriteUpdateInput = {
+      games: {
+        set: gamesInProfile.map((gameId) => ({ id: gameId })),
+      },
+    };
+
+    return this.prisma.favorite.update({
+      where: {
+        profileId: dto.profileId,
+      },
+      data,
+      select: this.selectFavorite,
+    });
   }
 
-  update(id: number, dto: UpdateFavoriteDto) {
-    return `This action updates a #${id} favorite`;
+  async findAll() {
+    return this.prisma.favorite.findMany({ select: this.selectFavorite });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} favorite`;
+  async remove(id: string, user: User) {
+    const ownerId = await this.findFavoriteOwner(id);
+
+    if (ownerId !== user.id && !user.isAdmin) {
+      throw {
+        name: 'ForbiddenError',
+        message: 'You are not allowed to remove this favorite',
+      };
+    }
+
+    return this.prisma.favorite.delete({
+      where: {
+        id,
+      },
+      select: this.selectFavorite,
+    });
+  }
+
+  /*  ********************************************************************************************************************
+   *******************************************      Métodos Adicionais      *******************************************
+   ******************************************************************************************************************** */
+
+  async isProfileOwner(profileId: string, userId: string) {
+    const profileOwner = await this.prisma.profile.findUnique({
+      where: {
+        id: profileId,
+      },
+      select: {
+        userId: true,
+      },
+    });
+
+    if (!profileOwner) {
+      throw {
+        name: 'NotFoundError',
+        message: `Perfil com o ID '${profileId}' não encontrado`,
+      };
+    }
+
+    return profileOwner.userId !== userId ? false : true;
+  }
+
+  // return all gameId's from a profile
+  async checkGamesInProfile(profileId: string) {
+    const games = await this.prisma.favorite.findUnique({
+      where: {
+        profileId,
+      },
+      select: {
+        games: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    return games.games.map((game) => game.id);
+  }
+
+  // check if the game exists
+  async findGameById(gameId: string) {
+    const isGameExists = await this.prisma.game.findUnique({
+      where: {
+        id: gameId,
+      },
+    });
+
+    if (!isGameExists) {
+      throw {
+        name: 'NotFoundError',
+        message: 'Game not found',
+      };
+    }
+
+    return isGameExists ? true : false;
+  }
+
+  async findFavoriteOwner(favoriteId: string) {
+    const favoriteOwner = await this.prisma.favorite.findUnique({
+      where: {
+        id: favoriteId,
+      },
+      select: {
+        profile: {
+          select: {
+            userId: true,
+          },
+        },
+      },
+    });
+
+    if (!favoriteOwner) {
+      throw {
+        name: 'NotFoundError',
+        message: `Favorite com o ID '${favoriteId}' não encontrado`,
+      };
+    }
+
+    return favoriteOwner.profile.userId;
+  }
+
+  async checkProfileFavorites(profileId: string) {
+    const profileHasFavorites = await this.prisma.favorite.findMany({
+      where: {
+        profileId,
+      },
+    });
+
+    return profileHasFavorites.length > 0 ? true : false;
   }
 }
