@@ -1,5 +1,6 @@
 import { LoggedUser } from '$/common/decorators/logged-user.decorator';
 import { handleError } from '$/common/helpers/exeption.helper';
+import { prismaExeptionFilter } from '$/common/helpers/prisma-exeption.filter';
 import {
   Body,
   Controller,
@@ -23,7 +24,11 @@ export class FavoriteController {
   constructor(private readonly favoriteService: FavoriteService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Adicionar um jogo para a lista de  favoritos' })
+  @ApiOperation({
+    summary: 'Adicionar um jogo para a lista de favoritos de um perfil',
+    description:
+      'Adicionar um jogo para a lista de favoritos de um perfil. É necessário que o usuário seja o dono do perfil ou um administrador.',
+  })
   async addGameToFavorite(
     @LoggedUser() user: User,
     @Body() dto: CreateFavoriteDto,
@@ -36,6 +41,7 @@ export class FavoriteController {
 
       return newFavorite;
     } catch (err) {
+      prismaExeptionFilter(err, 'Erro ao criar Favorito');
       handleError({
         name: err.name,
         message: err.message,
@@ -47,7 +53,7 @@ export class FavoriteController {
   @ApiOperation({
     summary: 'Listar todos os favoritos',
     description:
-      'Listar todos os favoritos de um perfil. Se administrador lista todos os perfis com favoritos',
+      'Listar todos os favoritos. Se administrador lista todos os perfis com seus favoritos, se usuário comum lista apenas os favoritos dos perfis que pertencem ao usuário logado.',
   })
   async findAll(@LoggedUser() user: User) {
     try {
@@ -57,8 +63,23 @@ export class FavoriteController {
 
       return await this.favoriteService.findAllByUserId(user.id);
     } catch (err) {
-      console.log(err);
+      handleError({
+        name: err.name,
+        message: err.message,
+      });
+    }
+  }
 
+  @Get(':id')
+  @ApiOperation({
+    summary: 'Listar favoritos de um perfil',
+    description:
+      'Listar favoritos de um perfil. É necessário que o usuário seja o dono do perfil ou um administrador.',
+  })
+  async findOneProfile(@LoggedUser() user: User, @Param('id') id: string) {
+    try {
+      return await this.favoriteService.findOneProfile(id, user);
+    } catch (err) {
       handleError({
         name: err.name,
         message: err.message,
@@ -88,7 +109,8 @@ export class FavoriteController {
   @Delete('remove/:id')
   @ApiOperation({
     summary: 'Remover todos os favoritos de um perfil pelo ID do perfil',
-    description: 'Remover todos os favoritos de um perfil pelo ID do perfil',
+    description:
+      'Remover todos os favoritos de um perfil pelo ID do perfil. É necessário que o usuário seja o dono do perfil ou um administrador.',
   })
   async removeFavorite(@LoggedUser() user: User, @Param('id') id: string) {
     try {

@@ -12,11 +12,13 @@ export class FavoriteService {
     profile: {
       select: {
         id: true,
+        title: true,
       },
     },
     games: {
       select: {
         id: true,
+        title: true,
       },
     },
   };
@@ -129,6 +131,24 @@ export class FavoriteService {
     });
 
     return favorites;
+  }
+
+  async findOneProfile(id: string, user: User) {
+    const isOwner = await this.isProfileOwner(id, user.id);
+
+    if (!isOwner && !user.isAdmin) {
+      throw {
+        name: 'ForbiddenError',
+        message: 'Você não tem permissão para acessar este perfil',
+      };
+    }
+
+    return this.prisma.favorite.findUnique({
+      where: {
+        profileId: id,
+      },
+      select: this.selectFavorite,
+    });
   }
 
   async removeGame(user: User, dto: CreateFavoriteDto) {
