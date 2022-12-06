@@ -33,7 +33,7 @@ model Profile {
   avatarUrl String     @default("https://i.pinimg.com/originals/ef/cd/58/efcd58c295c0374a9c37e62e40ebd6a9.jpg") @map("avatar_url")
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String     @map("user_id")
-  favorites Favorite[] // relacionamento N:N com User através da tabela UserGame
+  favorites Favorite[] // Relacionamento N:N com Game através da tabela Favorite
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
