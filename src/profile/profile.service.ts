@@ -7,6 +7,7 @@ import { ResponseProfile } from './interfaces/response-profile.interface';
 import { SelectProfile } from './interfaces/select-profile.interface';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { Profile } from './entities/profile.entity';
+import { profile } from 'console';
 
 @Injectable()
 export class ProfileService {
@@ -14,6 +15,11 @@ export class ProfileService {
     id: true,
     title: true,
     avatarUrl: true,
+    favorites: {
+      select: {
+        id: true,
+      },
+    },
     user: {
       select: {
         id: true,
@@ -54,19 +60,52 @@ export class ProfileService {
     });
   }
 
-  async findAll(): Promise<ResponseProfile[]> {
-    return this.prisma.profile.findMany({
-      select: this.selectedProfile,
+  async findAll() {
+    const data = await this.prisma.profile.findMany({
+      select: {
+        ...this.selectedProfile,
+        favorites: {
+          select: {
+            games: {
+              select: {
+                id: true,
+                title: true,
+              },
+            },
+          },
+        },
+      },
     });
+
+    const flattenFavorites = this.flattenFavorites(data);
+    return flattenFavorites.map((profile) => ({
+      ...profile,
+      favorites: profile.favorites.flat(),
+    }));
   }
 
   async findOne(id: string): Promise<Profile | ResponseProfile> {
     const data = await this.findByID(id, {
       ...this.selectedProfile,
+      favorites: {
+        select: {
+          games: {
+            select: {
+              id: true,
+              title: true,
+            },
+          },
+        },
+      },
       createdAt: true,
       updatedAt: true,
     });
-    return data;
+
+    const flattenFavorites = this.flattenFavorites([data]);
+    return {
+      ...flattenFavorites[0],
+      favorites: flattenFavorites[0].favorites.flat(),
+    };
   }
 
   async update(
@@ -147,5 +186,12 @@ export class ProfileService {
     });
 
     return superUserId.id;
+  }
+
+  flattenFavorites(profiles): ResponseProfile[] {
+    return profiles.map((profile) => ({
+      ...profile,
+      favorites: profile?.favorites?.map((favorite) => favorite?.games?.flat()),
+    }));
   }
 }

@@ -2,8 +2,17 @@ export class SelectProfile {
   id: boolean;
   title: boolean;
   avatarUrl: boolean;
-  createdAt: boolean;
-  updatedAt: boolean;
+  favorites?: {
+    select: {
+      id?: boolean;
+      games?: {
+        select: {
+          id?: boolean;
+          title?: boolean;
+        };
+      };
+    };
+  };
   user: {
     select: {
       id: boolean;
@@ -11,4 +20,6 @@ export class SelectProfile {
       email: boolean;
     };
   };
+  createdAt: boolean;
+  updatedAt: boolean;
 }

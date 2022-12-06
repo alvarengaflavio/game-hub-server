@@ -65,7 +65,7 @@ export class GameService {
 
     return data.map((game) => ({
       ...game,
-      genres: game.genres.map((genre) => genre.name),
+      genres: game?.genres?.map((genre) => genre.name),
     }));
   }
 
