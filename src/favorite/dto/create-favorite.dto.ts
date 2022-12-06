@@ -20,5 +20,5 @@ export class CreateFavoriteDto {
     description: 'Id do jogo a ser adicionado aos favoritos',
     example: '134e4e25-39c1-43c3-b3af-cd9d7f2fb44d',
   })
-  games: string;
+  gameId: string;
 }
