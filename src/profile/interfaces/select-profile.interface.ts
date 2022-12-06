@@ -1,7 +1,7 @@
 export class SelectProfile {
-  id: boolean;
+  id?: boolean;
   title: boolean;
-  avatarUrl: boolean;
+  avatarUrl?: boolean;
   favorites?: {
     select: {
       id?: boolean;
@@ -13,13 +13,13 @@ export class SelectProfile {
       };
     };
   };
-  user: {
+  user?: {
     select: {
-      id: boolean;
-      name: boolean;
-      email: boolean;
+      id?: boolean;
+      name?: boolean;
+      email?: boolean;
     };
   };
-  createdAt: boolean;
-  updatedAt: boolean;
+  createdAt?: boolean;
+  updatedAt?: boolean;
 }

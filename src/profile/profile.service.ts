@@ -3,11 +3,10 @@ import { User } from '$/user/entities/user.entity';
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { CreateProfileDto } from './dto/create-profile.dto';
-import { ResponseProfile } from './interfaces/response-profile.interface';
-import { SelectProfile } from './interfaces/select-profile.interface';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { Profile } from './entities/profile.entity';
-import { profile } from 'console';
+import { ResponseProfile } from './interfaces/response-profile.interface';
+import { SelectProfile } from './interfaces/select-profile.interface';
 
 @Injectable()
 export class ProfileService {
@@ -60,7 +59,7 @@ export class ProfileService {
     });
   }
 
-  async findAll() {
+  async findAll(): Promise<ResponseProfile[]> {
     const data = await this.prisma.profile.findMany({
       select: {
         ...this.selectedProfile,
@@ -69,7 +68,6 @@ export class ProfileService {
             games: {
               select: {
                 id: true,
-                title: true,
               },
             },
           },
@@ -77,7 +75,7 @@ export class ProfileService {
       },
     });
 
-    const flattenFavorites = this.flattenFavorites(data);
+    const flattenFavorites = this.flattenFavoritesIds(data);
     return flattenFavorites.map((profile) => ({
       ...profile,
       favorites: profile.favorites.flat(),
@@ -101,10 +99,10 @@ export class ProfileService {
       updatedAt: true,
     });
 
-    const flattenFavorites = this.flattenFavorites([data]);
+    const flattenFavorites = this.flattenFavoritesOne(data);
     return {
-      ...flattenFavorites[0],
-      favorites: flattenFavorites[0].favorites.flat(),
+      ...flattenFavorites,
+      favorites: flattenFavorites.favorites.flat(),
     };
   }
 
@@ -188,10 +186,21 @@ export class ProfileService {
     return superUserId.id;
   }
 
-  flattenFavorites(profiles): ResponseProfile[] {
-    return profiles.map((profile) => ({
+  flattenFavoritesIds(profiles: any): ResponseProfile[] {
+    return profiles.map((profile: any) => ({
       ...profile,
-      favorites: profile?.favorites?.map((favorite) => favorite?.games?.flat()),
+      favorites: profile?.favorites?.map((favorite: any) =>
+        favorite?.games?.map((game: any) => game.id).flat(),
+      ),
     }));
+  }
+
+  flattenFavoritesOne(profile: ResponseProfile): ResponseProfile {
+    return {
+      ...profile,
+      favorites: profile?.favorites?.map((favorite: any) =>
+        favorite?.games?.flat(),
+      ),
+    };
   }
 }
