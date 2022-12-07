@@ -72,9 +72,9 @@ export class UserController {
     status: 500,
     description: 'Erro interno do servidor',
   })
-  findAll() {
+  async findAll() {
     try {
-      return this.userService.findAll();
+      return await this.userService.findAll();
     } catch (err) {
       handleError({
         name: 'InternalServerError',

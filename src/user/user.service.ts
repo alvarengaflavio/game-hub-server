@@ -43,7 +43,7 @@ export class UserService {
     },
     games: {
       select: {
-        id: true,
+        gameId: true,
       },
     },
     isAdmin: true,
@@ -53,10 +53,12 @@ export class UserService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  findAll(): Promise<ResponseUser[]> {
-    return this.prisma.user.findMany({
+  async findAll(): Promise<ResponseUser[]> {
+    const allUsers = this.prisma.user.findMany({
       select: this.allUsersSelect,
     });
+
+    return allUsers;
   }
 
   async create(dto: CreateUserDto): Promise<ResponseUser> {
@@ -77,13 +79,13 @@ export class UserService {
 
     return this.prisma.user.create({
       data,
-      select: this.userSelect,
+      select: { ...this.userSelect, games: false },
     });
   }
 
   async findOne(id: string): Promise<ResponseUser> {
     const user = await this.findByID(id, this.userSelect);
-    return user;
+    return { ...user, games: user.games.map((game: any) => game.gameId) };
   }
 
   async update(id: string, dto: UpdateUserDto, user: User) {
@@ -123,11 +125,16 @@ export class UserService {
       data.password = await bcrypt.hash(data.password, 10);
     }
 
-    return this.prisma.user.update({
+    const updatedUser = await this.prisma.user.update({
       where: { id },
       data,
       select: this.userSelect,
     });
+
+    return {
+      ...updatedUser,
+      games: updatedUser.games.map((game: any) => game.gameId),
+    };
   }
 
   async remove(id: string, user: User): Promise<void> {
