@@ -40,6 +40,11 @@ export class UserService {
         updatedAt: false,
       },
     },
+    games: {
+      select: {
+        id: true,
+      },
+    },
     isAdmin: true,
     createdAt: true,
     updatedAt: true,
@@ -47,8 +52,21 @@ export class UserService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  findAll(): Promise<{ id: string; name: string; email: string }[]> {
-    return this.prisma.user.findMany({ select: this.allUsersSelect });
+  findAll(): Promise<ResponseUser[]> {
+    return this.prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+
+        _count: {
+          select: {
+            profiles: true,
+            games: true,
+          },
+        },
+      },
+    });
   }
 
   async create(dto: CreateUserDto): Promise<ResponseUser> {

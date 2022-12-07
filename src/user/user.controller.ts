@@ -101,6 +101,8 @@ export class UserController {
 
       return user;
     } catch (err) {
+      console.log(err);
+
       handleError({
         name: err.name,
         message: err.message,
