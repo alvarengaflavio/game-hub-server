@@ -112,7 +112,7 @@ export class GameController {
     }
   }
 
-  @Patch()
+  @Post('usergame')
   @ApiOperation({
     summary: 'Adicionar um JOGO a um USUÁRIO',
     description:
