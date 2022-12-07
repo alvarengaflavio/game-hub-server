@@ -1,6 +1,8 @@
 import { PrismaService } from '$/prisma/prisma.service';
+import { User } from '$/user/entities/user.entity';
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { AddGameDto } from './dto/add-game-dto';
 import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
 import { Game } from './entities/game.entity';
@@ -124,6 +126,69 @@ export class GameService {
     await this.prisma.game.delete({ where: { id } });
   }
 
+  async addGameToUser(dto: AddGameDto, user: User) {
+    const { gameId, userId } = dto;
+    if (user.id !== userId && !user.isAdmin)
+      throw {
+        name: 'ForbiddenError',
+        message: 'Você não tem permissão para adicionar jogos a este usuário.',
+      };
+
+    await this.findGameById(gameId); // Verifica se o jogo existe
+    await this.findUserById(userId); // Verifica se o usuário existe
+
+    const newGame = await this.prisma.userGame.create({
+      data: {
+        game: {
+          connect: { id: gameId },
+        },
+        user: {
+          connect: { id: userId },
+        },
+      },
+      select: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            isAdmin: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+        game: {
+          select: {
+            id: true,
+            title: true,
+            genres: {
+              select: {
+                name: true,
+              },
+            },
+            year: true,
+            developer: true,
+            score: true,
+            price: true,
+            coverUrl: true,
+            videoUrl: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+      },
+    });
+
+    return {
+      ...newGame.user,
+      games: [
+        {
+          ...newGame.game,
+          genres: newGame.game.genres.map((genre) => genre.name),
+        },
+      ],
+    };
+  }
   /*  ********************************************************************************************************************
    *******************************************      Métodos Adicionais      *******************************************
    ******************************************************************************************************************** */
@@ -146,5 +211,19 @@ export class GameService {
     }
 
     return game;
+  }
+
+  async findUserById(id: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+
+    if (!user) {
+      throw {
+        name: 'NotFoundError',
+        message: `Usuário com Id '${id}' não encontrado.`,
+      };
+    }
   }
 }

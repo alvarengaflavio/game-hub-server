@@ -18,6 +18,7 @@ export class UserService {
     _count: {
       select: {
         profiles: true,
+        games: true,
       },
     },
     isAdmin: false,
@@ -54,18 +55,7 @@ export class UserService {
 
   findAll(): Promise<ResponseUser[]> {
     return this.prisma.user.findMany({
-      select: {
-        id: true,
-        name: true,
-        email: true,
-
-        _count: {
-          select: {
-            profiles: true,
-            games: true,
-          },
-        },
-      },
+      select: this.allUsersSelect,
     });
   }
 
