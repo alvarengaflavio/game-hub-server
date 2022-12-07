@@ -189,6 +189,22 @@ export class GameService {
       ],
     };
   }
+
+  async removeGameFromUser(dto: AddGameDto, user: User) {
+    const { gameId, userId } = dto;
+
+    await this.findGameById(gameId); // Verifica se o jogo existe
+    await this.findUserById(userId); // Verifica se o usuário existe
+
+    await this.prisma.userGame.delete({
+      where: {
+        userId_gameId: {
+          gameId,
+          userId,
+        },
+      },
+    });
+  }
   /*  ********************************************************************************************************************
    *******************************************      Métodos Adicionais      *******************************************
    ******************************************************************************************************************** */

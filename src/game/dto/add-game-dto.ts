@@ -6,7 +6,7 @@ export class AddGameDto {
   @IsNotEmpty()
   @ApiProperty({
     description: 'O ID do jogo.',
-    example: 'c0a80aa6-7dec-11eb-9439-0242ac130003',
+    example: '1c882e38-bc75-45ed-8999-0d2db539cdde',
   })
   gameId: string;
 
@@ -14,7 +14,7 @@ export class AddGameDto {
   @IsNotEmpty()
   @ApiProperty({
     description: 'O ID do usuário.',
-    example: 'c0a80aa6-7dec-11eb-9439-0242ac130003',
+    example: 'a91a05b8-bf2a-4edb-97e8-fabaed7692cb',
   })
   userId: string;
 }

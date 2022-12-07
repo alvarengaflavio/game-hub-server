@@ -133,6 +133,34 @@ export class GameController {
     }
   }
 
+  @Delete('usergame')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Excluir um JOGO de um USUÁRIO pelo ID',
+    description:
+      'Excluir um jogo de um usuário pelo ID do jogo. O usuário deve estar logado e ser administrador.',
+  })
+  async removeGameFromUser(
+    @LoggedUser() user: User,
+    @Body() dto: AddGameDto,
+  ): Promise<void> {
+    try {
+      if (!user.isAdmin)
+        throw {
+          name: 'UnauthorizedError',
+          message: 'Você não tem permissão para excluir um jogo.',
+        };
+
+      await this.gameService.removeGameFromUser(dto, user);
+    } catch (err) {
+      prismaExeptionFilter(err, 'O jogo não está no usuário ou não existe.');
+      handleError({
+        name: err.name,
+        message: err.message,
+      });
+    }
+  }
+
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Excluir um Jogo pelo ID' })
