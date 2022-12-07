@@ -10,10 +10,13 @@ export class ResponseUser {
     createdAt?: Date;
     updatedAt?: Date;
   }[];
-  games?: {
-    id?: string;
-    title?: string;
-  }[];
+  games?:
+    | {
+        id?: string;
+        title?: string;
+        gameId?: string;
+      }[]
+    | string[];
   _count?: {
     profiles?: number;
     games?: number;
