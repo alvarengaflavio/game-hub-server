@@ -22,6 +22,7 @@ async function bootstrap() {
     .addTag('game')
     .addTag('genres')
     .addTag('favorite')
+    .addTag('homepage')
     .addBearerAuth()
     .build();
 
