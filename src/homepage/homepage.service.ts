@@ -108,12 +108,10 @@ export class HomepageService {
       };
     });
 
-    const games = data.games.map((game: any) => {
-      return {
-        ...game.game,
-        genres: game.game.genres.map((genre: any) => genre.name),
-      };
-    });
+    const games = data.games.map((game: any) => ({
+      ...game.game,
+      genres: game.game.genres.map((genre: any) => genre.name),
+    }));
 
     return {
       ...data,
