@@ -1,4 +1,6 @@
+import { LoggedUser } from '$/common/decorators/logged-user.decorator';
 import { handleError } from '$/common/helpers/exeption.helper';
+import { User } from '$/user/entities/user.entity';
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -17,9 +19,13 @@ export class HomepageController {
     description:
       'Retorna todos os dados da homepage. \nSe administrador retorna dados de todos os usuários, se usuário comum retorna todos os dados do usuário logado.',
   })
-  async findAll() {
+  async findAll(@LoggedUser() user: User) {
     try {
-      return await this.homepageService.findAll();
+      if (!user.isAdmin) {
+        return await this.homepageService.findAll(user);
+      }
+
+      return await this.homepageService.findAllAdmin(user);
     } catch (err) {
       handleError({
         name: err.name,
