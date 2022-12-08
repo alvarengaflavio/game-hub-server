@@ -51,8 +51,45 @@ export class HomepageService {
     return this.refactorFindLoggedData(data);
   }
 
-  async findAllAdmin(user: User) {
-    return `This action returns all homepage`;
+  async findAllAdmin() {
+    const data = await this.prisma.user.findMany({
+      where: {},
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        cpf: true,
+        isAdmin: true,
+
+        profiles: {
+          select: {
+            id: true,
+            title: true,
+            _count: {
+              select: {
+                favorites: true,
+              },
+            },
+          },
+        },
+
+        games: {
+          select: {
+            game: {
+              select: {
+                id: true,
+                title: true,
+              },
+            },
+          },
+        },
+
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    return this.refactorFindAllAdminData(data);
   }
 
   /*  ********************************************************************************************************************
@@ -84,5 +121,19 @@ export class HomepageService {
       profiles: profiles,
       games: games,
     };
+  }
+
+  refactorFindAllAdminData(data: any): any {
+    // const games = data.games.map((game: any) => ({
+    //   ...game.game,
+    //   genres: game.game.genres.map((genre: any) => genre.name),
+    // }));
+
+    const newData = data.map((user: any) => ({
+      ...user,
+      games: user.games.map((game: any) => ({ ...game.game })),
+    }));
+
+    return newData;
   }
 }

@@ -27,7 +27,7 @@ export class HomepageController {
         return await this.homepageService.findLoggedUser(user);
       }
 
-      return await this.homepageService.findAllAdmin(user);
+      return await this.homepageService.findAllAdmin();
     } catch (err) {
       handleError({
         name: err.name,
