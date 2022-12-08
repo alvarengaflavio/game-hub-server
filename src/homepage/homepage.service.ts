@@ -60,6 +60,8 @@ export class HomepageService {
         email: true,
         cpf: true,
         isAdmin: true,
+        createdAt: true,
+        updatedAt: true,
 
         profiles: {
           select: {
@@ -83,9 +85,6 @@ export class HomepageService {
             },
           },
         },
-
-        createdAt: true,
-        updatedAt: true,
       },
     });
 
