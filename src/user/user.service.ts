@@ -118,7 +118,11 @@ export class UserService {
     delete dto?.confirmPassword;
 
     const data: UpdateUserDto = {
-      ...dto,
+      name: dto?.name,
+      email: dto?.email,
+      password: dto?.password,
+      cpf: dto?.cpf,
+      isAdmin: dto?.isAdmin,
     };
 
     if (data.password) {
