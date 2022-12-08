@@ -17,12 +17,14 @@ export class HomepageController {
   @ApiOperation({
     summary: 'Retorna todos os dados da homepage',
     description:
-      'Retorna todos os dados da homepage. \nSe administrador retorna dados de todos os usuários, se usuário comum retorna todos os dados do usuário logado.',
+      'Retorna todos os dados da homepage. \
+      Se usuário comum retorna todos os dados do usuário logado. \
+      Se administrador retorna dados de todos os usuários.  ',
   })
   async findAll(@LoggedUser() user: User) {
     try {
       if (!user.isAdmin) {
-        return await this.homepageService.findAll(user);
+        return await this.homepageService.findLoggedUser(user);
       }
 
       return await this.homepageService.findAllAdmin(user);
