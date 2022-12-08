@@ -5,6 +5,8 @@ import { Controller, Get, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { HomepageService } from './homepage.service';
+import { ResponseAdmin } from './interfaces/response-admin.interface';
+import { ResponseLoggedUser } from './interfaces/response-logged-user.interface';
 
 @ApiTags('homepage')
 @UseGuards(AuthGuard())
@@ -21,7 +23,9 @@ export class HomepageController {
       Se usuário comum retorna todos os dados do usuário logado. \
       Se administrador retorna dados de todos os usuários.  ',
   })
-  async findAll(@LoggedUser() user: User) {
+  async findAll(
+    @LoggedUser() user: User,
+  ): Promise<ResponseLoggedUser | ResponseAdmin[]> {
     try {
       if (!user.isAdmin) {
         return await this.homepageService.findLoggedUser(user);

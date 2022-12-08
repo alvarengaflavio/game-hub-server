@@ -1,6 +1,7 @@
 import { PrismaService } from '$/prisma/prisma.service';
 import { User } from '$/user/entities/user.entity';
 import { Injectable } from '@nestjs/common';
+import { ResponseAdmin } from './interfaces/response-admin.interface';
 import { ResponseLoggedUser } from './interfaces/response-logged-user.interface';
 
 @Injectable()
@@ -51,7 +52,7 @@ export class HomepageService {
     return this.refactorFindLoggedData(data);
   }
 
-  async findAllAdmin() {
+  async findAllAdmin(): Promise<ResponseAdmin[]> {
     const data = await this.prisma.user.findMany({
       where: {},
       select: {
@@ -120,13 +121,8 @@ export class HomepageService {
     };
   }
 
-  refactorFindAllAdminData(data: any): any {
-    // const games = data.games.map((game: any) => ({
-    //   ...game.game,
-    //   genres: game.game.genres.map((genre: any) => genre.name),
-    // }));
-
-    const newData = data.map((user: any) => ({
+  refactorFindAllAdminData(data: any[]): ResponseAdmin[] {
+    const newData: ResponseAdmin[] = data.map((user: any) => ({
       ...user,
       games: user.games.map((game: any) => ({ ...game.game })),
     }));
