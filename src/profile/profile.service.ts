@@ -79,7 +79,7 @@ export class ProfileService {
     }));
   }
 
-  async findOne(id: string): Promise<Profile | ResponseProfile> {
+  async findOne(id: string) {
     const data = await this.findByID(id, {
       ...this.selectedProfile,
       favorites: {
