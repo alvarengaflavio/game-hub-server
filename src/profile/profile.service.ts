@@ -185,7 +185,7 @@ export class ProfileService {
     }));
   }
 
-  flattenFavoritesOne(profile: ResponseProfile) {
+  flattenFavoritesOne(profile: any) {
     return {
       ...profile,
       favorites: profile?.favorites?.map((favorite: any) =>
