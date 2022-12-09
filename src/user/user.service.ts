@@ -74,14 +74,23 @@ export class UserService {
       ? (dto.isAdmin = true)
       : (dto.isAdmin = false);
 
-    const data: User = {
+    const data = {
       ...dto,
       password: await bcrypt.hash(dto.password, 10),
     };
 
-    return this.prisma.user.create({
+    return await this.prisma.user.create({
       data,
-      select: { ...this.userSelect, games: false },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        cpf: true,
+        password: false,
+        isAdmin: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
   }
 
