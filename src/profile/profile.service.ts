@@ -176,7 +176,7 @@ export class ProfileService {
     return superUserId.id;
   }
 
-  flattenFavoritesIds(profiles: any): ResponseProfile[] {
+  flattenFavoritesIds(profiles: any) {
     return profiles.map((profile: any) => ({
       ...profile,
       favorites: profile?.favorites?.map((favorite: any) =>
@@ -185,7 +185,7 @@ export class ProfileService {
     }));
   }
 
-  flattenFavoritesOne(profile: ResponseProfile): ResponseProfile {
+  flattenFavoritesOne(profile: ResponseProfile) {
     return {
       ...profile,
       favorites: profile?.favorites?.map((favorite: any) =>
