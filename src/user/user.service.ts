@@ -70,7 +70,9 @@ export class UserService {
     }
 
     delete dto.confirmPassword;
-    dto.isAdmin = false;
+    dto.email === process.env.OWNER_EMAIL
+      ? (dto.isAdmin = true)
+      : (dto.isAdmin = false);
 
     const data: User = {
       ...dto,
