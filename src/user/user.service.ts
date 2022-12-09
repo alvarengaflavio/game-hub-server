@@ -61,7 +61,7 @@ export class UserService {
     return allUsers;
   }
 
-  async create(dto: CreateUserDto): Promise<ResponseUser> {
+  async create(dto: CreateUserDto) {
     if (dto.confirmPassword !== dto.password) {
       throw {
         name: 'ValidationError',
