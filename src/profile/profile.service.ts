@@ -32,10 +32,7 @@ export class ProfileService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(
-    userId: string,
-    dto: CreateProfileDto,
-  ): Promise<ResponseProfile> {
+  async create(userId: string, dto: CreateProfileDto) {
     const data: Prisma.ProfileCreateInput = {
       title: dto.title,
       avatarUrl: dto.avatarUrl,
@@ -106,11 +103,7 @@ export class ProfileService {
     };
   }
 
-  async update(
-    id: string,
-    dto: UpdateProfileDto,
-    user: User,
-  ): Promise<ResponseProfile> {
+  async update(id: string, dto: UpdateProfileDto, user: User) {
     const profileOwner = await this.getOwnerId(id);
     // Se o usuário não for admin, só pode atualizar o próprio perfil
     if (!user.isAdmin && user.id !== profileOwner)
@@ -145,10 +138,7 @@ export class ProfileService {
   //                                   Métodos adicionais
   // ------------------------------------------------------------------------------------------------
 
-  async findByID(
-    id: string,
-    select: SelectProfile = null,
-  ): Promise<Profile | ResponseProfile> {
+  async findByID(id: string, select: SelectProfile = null) {
     const profile = select
       ? await this.prisma.profile.findUnique({
           where: { id },
