@@ -68,9 +68,13 @@ export class HomepageService {
           select: {
             id: true,
             title: true,
-            _count: {
+            favorites: {
               select: {
-                favorites: true,
+                _count: {
+                  select: {
+                    games: true,
+                  },
+                },
               },
             },
           },
@@ -124,6 +128,12 @@ export class HomepageService {
   refactorFindAllAdminData(data: any[]): ResponseAdmin[] {
     const newData: ResponseAdmin[] = data.map((user: any) => ({
       ...user,
+      profiles: user.profiles.map((profile: any) => ({
+        ...profile,
+        favorites: profile.favorites.reduce((acc: any, favorite: any) => {
+          return acc + favorite._count.games;
+        }, 0),
+      })),
       games: user.games.map((game: any) => ({ ...game.game })),
     }));
 

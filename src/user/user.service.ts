@@ -61,7 +61,7 @@ export class UserService {
     return allUsers;
   }
 
-  async create(dto: CreateUserDto): Promise<ResponseUser> {
+  async create(dto: CreateUserDto) {
     if (dto.confirmPassword !== dto.password) {
       throw {
         name: 'ValidationError',
@@ -70,16 +70,27 @@ export class UserService {
     }
 
     delete dto.confirmPassword;
-    dto.isAdmin = false;
+    dto.email === process.env.OWNER_EMAIL
+      ? (dto.isAdmin = true)
+      : (dto.isAdmin = false);
 
-    const data: User = {
+    const data = {
       ...dto,
       password: await bcrypt.hash(dto.password, 10),
     };
 
-    return this.prisma.user.create({
+    return await this.prisma.user.create({
       data,
-      select: { ...this.userSelect, games: false },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        cpf: true,
+        password: false,
+        isAdmin: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
   }
 
