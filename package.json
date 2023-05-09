@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "@mermaid-js/mermaid-cli": "^9.2.2",
-    "@nestjs/cli": "^9.0.0",
+    "@nestjs/cli": "^9.4.2",
     "@nestjs/schematics": "^9.0.0",
     "@nestjs/testing": "^9.0.0",
     "@types/bcrypt": "^5.0.0",
