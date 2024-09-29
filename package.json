@@ -39,7 +39,7 @@
     "swagger-ui-express": "^4.6.0"
   },
   "devDependencies": {
-    "@mermaid-js/mermaid-cli": "^9.2.2",
+    "@mermaid-js/mermaid-cli": "^11.2.0",
     "@nestjs/cli": "^9.4.2",
     "@nestjs/schematics": "^9.0.0",
     "@nestjs/testing": "^10.4.3",
